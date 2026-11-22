@@ -1,7 +1,7 @@
 {
   "name": "dostlik-kassa",
   "productName": "Do'stlik Kassa",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Do‘stlik oilaviy restorani uchun kassa (POS) dasturi",
   "author": "Sardor Arziqulov (Vector57)",
   "license": "UNLICENSED",
@@ -40,7 +40,7 @@
   "build": {
     "appId": "uz.dostlik.kassa",
     "productName": "Do'stlik Kassa",
-    "artifactName": "Dostlik-Kassa-Setup-${version}.${ext}",
+    "artifactName": "Dostlik-Kassa.${ext}",
     "directories": {
       "output": "release",
       "buildResources": "build"
