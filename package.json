@@ -1,0 +1,60 @@
+{
+  "name": "dostlik-kassa",
+  "productName": "Do'stlik Kassa",
+  "version": "1.0.0",
+  "description": "Do‘stlik oilaviy restorani uchun kassa (POS) dasturi",
+  "author": "Sardor Arziqulov (Vector57)",
+  "license": "UNLICENSED",
+  "private": true,
+  "main": "dist-electron/main.js",
+  "scripts": {
+    "dev": "npm run build:electron && concurrently -k \"vite\" \"wait-on tcp:5173 && cross-env VITE_DEV=1 electron .\"",
+    "build:electron": "node scripts/build-electron.mjs",
+    "build:renderer": "vite build",
+    "build": "tsc --noEmit -p . && npm run build:renderer && npm run build:electron",
+    "test": "vitest run",
+    "dist": "npm run build && electron-builder --win nsis --publish never",
+    "release": "npm run build && electron-builder --win nsis --publish always"
+  },
+  "dependencies": {
+    "electron-updater": "^6.3.9"
+  },
+  "devDependencies": {
+    "@fontsource-variable/inter": "^5.1.0",
+    "@types/node": "^22.10.0",
+    "@types/react": "^18.3.12",
+    "@types/react-dom": "^18.3.1",
+    "@vitejs/plugin-react": "^4.3.4",
+    "concurrently": "^9.1.0",
+    "cross-env": "^7.0.3",
+    "electron": "^33.2.1",
+    "electron-builder": "^25.1.8",
+    "esbuild": "^0.24.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "typescript": "^5.7.2",
+    "vite": "^5.4.11",
+    "vitest": "^2.1.8",
+    "wait-on": "^8.0.1"
+  },
+  "build": {
+    "appId": "uz.dostlik.kassa",
+    "productName": "Do'stlik Kassa",
+    "artifactName": "Dostlik-Kassa-Setup-${version}.${ext}",
+    "directories": { "output": "release", "buildResources": "build" },
+    "files": ["dist/**", "dist-electron/**", "package.json"],
+    "win": {
+      "target": [{ "target": "nsis", "arch": ["x64"] }],
+      "icon": "build/icon.ico"
+    },
+    "nsis": {
+      "oneClick": true,
+      "perMachine": false,
+      "createDesktopShortcut": "always",
+      "createStartMenuShortcut": true,
+      "shortcutName": "Do'stlik Kassa",
+      "deleteAppDataOnUninstall": false
+    },
+    "publish": [{ "provider": "github", "releaseType": "release" }]
+  }
+}

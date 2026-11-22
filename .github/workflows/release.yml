@@ -1,0 +1,29 @@
+# Yangi versiya: package.json dagi versiyani oshirib, "v1.0.1" kabi teg yuborilsa —
+# GitHub Windows kompyuterida .exe yig‘iladi va Releases’ga joylanadi.
+# Kassadagi dastur shu yerdan o‘zi yangilanadi.
+name: Reliz (Windows .exe)
+
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm test
+      - run: npm run build
+      - name: Exe yig‘ish va relizga joylash
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: npx electron-builder --win nsis --publish always -c.publish.provider=github -c.publish.owner=${{ github.repository_owner }} -c.publish.repo=${{ github.event.repository.name }} -c.publish.releaseType=release
