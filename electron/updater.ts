@@ -3,8 +3,7 @@ import { app, type BrowserWindow } from "electron";
 import { autoUpdater } from "electron-updater";
 import type { UpdateState } from "../src/shared/types";
 
-/** Yangilanishlar manzili: VPS GitHub'dagi (yopiq repo) relizni shu yerga ko‘chirib turadi */
-export const UPDATE_URL = process.env.KASSA_UPDATE_URL || "http://162.35.179.29:8790/";
+// Yangilanishlar GitHub Releases'dan olinadi (repo ochiq — kalit kerak emas)
 const CHECK_EVERY = 5 * 60_000;
 
 let state: UpdateState = { phase: "idle" };
@@ -29,7 +28,6 @@ export function initUpdater(w: BrowserWindow) {
     set({ phase: "none", error: "Dasturchi rejimi — yangilanish faqat o‘rnatilgan dasturda ishlaydi" });
     return;
   }
-  autoUpdater.setFeedURL({ provider: "generic", url: UPDATE_URL });
   autoUpdater.autoDownload = true;
   autoUpdater.autoInstallOnAppQuit = true;
   autoUpdater.on("checking-for-update", () => set({ ...state, phase: "checking" }));
@@ -48,7 +46,7 @@ export function initUpdater(w: BrowserWindow) {
 function friendly(e: Error) {
   const m = e?.message ?? String(e);
   if (/ENOTFOUND|ECONNREFUSED|ETIMEDOUT|net::/i.test(m)) return "Yangilanish serveriga ulanib bo‘lmadi — keyinroq yana tekshiriladi";
-  if (/404/.test(m)) return "Yangilanish serverida hali fayl yo‘q";
+  if (/404/.test(m)) return "Yangilanishlar topilmadi — GitHub repo ochiq (Public) ekanini tekshiring";
   return m.split("\n")[0].slice(0, 200);
 }
 
