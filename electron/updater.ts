@@ -3,6 +3,10 @@ import { app, type BrowserWindow } from "electron";
 import { autoUpdater } from "electron-updater";
 import type { UpdateState } from "../src/shared/types";
 
+/** Yangilanishlar manzili: VPS GitHub'dagi (yopiq repo) relizni shu yerga ko‘chirib turadi */
+export const UPDATE_URL = process.env.KASSA_UPDATE_URL || "http://162.35.179.29:8790/";
+const CHECK_EVERY = 5 * 60_000;
+
 let state: UpdateState = { phase: "idle" };
 let win: BrowserWindow | null = null;
 
@@ -25,6 +29,7 @@ export function initUpdater(w: BrowserWindow) {
     set({ phase: "none", error: "Dasturchi rejimi — yangilanish faqat o‘rnatilgan dasturda ishlaydi" });
     return;
   }
+  autoUpdater.setFeedURL({ provider: "generic", url: UPDATE_URL });
   autoUpdater.autoDownload = true;
   autoUpdater.autoInstallOnAppQuit = true;
   autoUpdater.on("checking-for-update", () => set({ ...state, phase: "checking" }));
@@ -36,14 +41,14 @@ export function initUpdater(w: BrowserWindow) {
   autoUpdater.on("update-downloaded", (i) => set({ ...state, phase: "ready", version: i.version, percent: 100 }));
   autoUpdater.on("error", (e) => set({ ...state, phase: "error", error: friendly(e) }));
 
-  setTimeout(check, 8_000);
-  setInterval(check, 30 * 60_000);
+  setTimeout(check, 5_000);
+  setInterval(check, CHECK_EVERY);
 }
 
 function friendly(e: Error) {
   const m = e?.message ?? String(e);
-  if (/ENOTFOUND|ECONNREFUSED|ETIMEDOUT|net::/i.test(m)) return "Internet yo‘q — keyinroq yana tekshiriladi";
-  if (/404/.test(m)) return "Yangilanishlar sahifasi topilmadi (GitHub reliz hali yo‘q)";
+  if (/ENOTFOUND|ECONNREFUSED|ETIMEDOUT|net::/i.test(m)) return "Yangilanish serveriga ulanib bo‘lmadi — keyinroq yana tekshiriladi";
+  if (/404/.test(m)) return "Yangilanish serverida hali fayl yo‘q";
   return m.split("\n")[0].slice(0, 200);
 }
 

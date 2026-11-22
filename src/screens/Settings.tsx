@@ -324,7 +324,7 @@ function UpdateTab({ ctx, upd, onUpdate }: { ctx: Ctx; upd: UpdateState; onUpdat
         <span className="grow" />
         <button className="btn primary" onClick={() => { call("update:check"); onUpdate(); }}><Icon name="sync" size={18} /> Yangilanishni tekshirish</button>
       </div>
-      <p className="muted small">Dastur har 30 daqiqada o‘zi tekshiradi. Yangi versiya chiqsa, oyna ochilib yuklanish foizi ko‘rinadi.</p>
+      <p className="muted small">Dastur ochilganda va har 5 daqiqada o‘zi tekshiradi. Yangi versiya chiqsa, oyna ochilib yuklanish foizi ko‘rinadi.</p>
       <h3>Ma'lumotlar</h3>
       <p className="muted small">Barcha buyurtmalar shu kompyuterda saqlanadi, har kuni zaxira nusxa olinadi (oxirgi 30 kun). Menyu oxirgi marta: {ctx.s.site.syncedAt ? hhmm(ctx.s.site.syncedAt) : "—"}.</p>
       <div className="row-gap">

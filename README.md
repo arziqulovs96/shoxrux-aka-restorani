@@ -30,6 +30,6 @@ npm version patch          # 1.0.0 → 1.0.1 (git teg ham yaratiladi)
 git push --follow-tags     # GitHub Actions .exe yig‘ib, Releases’ga joylaydi
 ```
 
-Kassadagi dastur 30 daqiqa ichida yangilanishni topadi, yuklab oladi va o‘rnatishni taklif qiladi.
+Kassadagi dastur 10 daqiqa ichida yangilanishni topadi, yuklab oladi va o‘rnatishni taklif qiladi.
 
 Muallif: Sardor Arziqulov (Vector57)
