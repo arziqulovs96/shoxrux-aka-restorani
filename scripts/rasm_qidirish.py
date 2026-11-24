@@ -25,14 +25,18 @@ def openverse(q, n=5):
                     "license": f'{x.get("license")} {x.get("license_version") or ""}'.strip(), "creator": x.get("creator") or ""})
     return res
 
-def commons(q, n=5):
+def commons(q, n=5, tries=3):
     u = "https://commons.wikimedia.org/w/api.php?" + urllib.parse.urlencode({
         "action": "query", "format": "json", "generator": "search", "gsrsearch": f"{q} filetype:bitmap", "gsrnamespace": 6,
         "gsrlimit": n, "prop": "imageinfo", "iiprop": "url|extmetadata", "iiurlwidth": 640})
-    try:
-        js = json.loads(get(u))
-    except Exception as e:
-        print("commons xato", q, e); return []
+    js = None
+    for t in range(tries):
+        try:
+            js = json.loads(get(u)); break
+        except Exception as e:
+            print("commons xato", q, e); time.sleep(5 * (t + 1))
+    if js is None:
+        return []
     pages = sorted(js.get("query", {}).get("pages", {}).values(), key=lambda p: p.get("index", 0))
     res = []
     for p in pages:
@@ -50,7 +54,7 @@ for cat, items in Q.items():
         cands = []
         for q in queries:
             cands += openverse(q, 4) + commons(q, 3)
-            time.sleep(0.4)
+            time.sleep(1.5)
         seen, uniq = set(), []
         for c in cands:
             if c["img"] and c["img"] not in seen:
@@ -61,8 +65,8 @@ for cat, items in Q.items():
         for i, c in enumerate(uniq):
             try:
                 im = Image.open(io.BytesIO(get(c["img"]))).convert("RGB")
-                im.thumbnail((900, 900))
-                im.save(f"{OUT}/{iid}/{i}.jpg", quality=88)
+                im.thumbnail((720, 720))
+                im.save(f"{OUT}/{iid}/{i}.jpg", quality=82)
                 c["file"] = f"{iid}/{i}.jpg"; c["size"] = im.size
                 thumbs.append((i, ImageOps.fit(im, (200, 150))))
             except Exception as e:
