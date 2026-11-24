@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { call } from "../api";
 import type { Ctx } from "../App";
 import emblem from "../assets/emblem.svg";
+import credits from "../../public/menu/manbalar.json";
 import { menu, num, uid } from "../shared/logic";
 import type { Hall, PrinterInfo, Product, Role, Settings as S, UpdateState } from "../shared/types";
 import { Icon, Modal, ROLE, hhmm, useToast } from "../ui";
@@ -343,6 +344,7 @@ function UpdateTab({ ctx, upd, onUpdate }: { ctx: Ctx; upd: UpdateState; onUpdat
       <div className="row-gap">
         <button className="btn ghost" onClick={() => call("app:openData")}><Icon name="folder" size={18} /> Ma'lumotlar papkasini ochish</button>
         <ClearButton />
+        <CreditsButton />
         <button className="btn ghost danger" onClick={() => call("app:quit")}><Icon name="power" size={18} /> Dasturdan chiqish</button>
       </div>
     </div>
@@ -365,6 +367,29 @@ function ClearButton() {
           }>
           <p>Barcha buyurtmalar, to‘lovlar, kirim/chiqim, qarzlar va hisobotlar o‘chiriladi, buyurtma raqami 1 dan boshlanadi.</p>
           <p className="muted small" style={{ marginTop: 8 }}>Menyu, xodimlar va sozlamalar qoladi. Bu amalni qaytarib bo‘lmaydi (faqat kunlik zaxira nusxadan).</p>
+        </Modal>
+      )}
+    </>
+  );
+}
+
+/** Internetdan olingan rasmlar mualliflari (litsenziya talabi) */
+function CreditsButton() {
+  const [open, setOpen] = useState(false);
+  return (
+    <>
+      <button className="btn ghost" onClick={() => setOpen(true)}><Icon name="image" size={18} /> Rasm mualliflari</button>
+      {open && (
+        <Modal title="Menyu rasmlari mualliflari" onClose={() => setOpen(false)} width={720}>
+          <p className="muted small" style={{ marginBottom: 10 }}>Rasmlar erkin litsenziyali manbalardan (Flickr, Wikimedia Commons) olingan va kassa uchun kesilgan.</p>
+          <table className="tbl">
+            <thead><tr><th>Taom</th><th>Muallif</th><th>Litsenziya</th><th>Manba</th></tr></thead>
+            <tbody>
+              {(credits as { file: string; for: string; author: string; license: string; source: string; page: string }[]).map((c) => (
+                <tr key={c.file}><td>{c.for}</td><td>{c.author || "—"}</td><td>{c.license}</td><td><a href={c.page} target="_blank" rel="noreferrer">{c.source.replace("openverse:", "")}</a></td></tr>
+              ))}
+            </tbody>
+          </table>
         </Modal>
       )}
     </>

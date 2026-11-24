@@ -49,6 +49,66 @@ const MENU: { id: string; name: string; print?: "shashlik"; items: Row[] }[] = [
 
 export const MENU_SEED_VERSION = 1;
 
+/** Internetdan (Openverse/Flickr, Wikimedia) olingan erkin litsenziyali rasmlar — mualliflar: public/menu/manbalar.json */
+export const MENU_IMAGES_VERSION = 1;
+export const MENU_IMAGES: Record<string, string> = {
+  "zz-salat-1": "menu/zz-salat-1-6.jpg",
+  "zz-salat-4": "menu/zz-salat-4-5.jpg",
+  "zz-salat-5": "menu/zz-salat-5-7.jpg",
+  "zz-salat-6": "menu/zz-salat-6-7.jpg",
+  "zz-salat-7": "menu/zz-salat-7-5.jpg",
+  "zz-salat-8": "menu/zz-salat-8-6.jpg",
+  "zz-salat-9": "menu/zz-salat-9-2.jpg",
+  "zz-birinchi-2": "menu/zz-birinchi-2-4.jpg",
+  "zz-birinchi-3": "menu/zz-birinchi-3-4.jpg",
+  "zz-birinchi-5": "menu/zz-birinchi-5-5.jpg",
+  "zz-birinchi-6": "menu/zz-birinchi-6-3.jpg",
+  "zz-birinchi-8": "menu/zz-birinchi-8-1.jpg",
+  "zz-birinchi-10": "menu/zz-birinchi-10-4.jpg",
+  "zz-asosiy-9": "menu/zz-asosiy-9-6.jpg",
+  "zz-asosiy-11": "menu/zz-asosiy-11-2.jpg",
+  "zz-maxsus-1": "menu/zz-maxsus-1-7.jpg",
+  "zz-asosiy-salat-1": "menu/zz-asosiy-salat-1-0.jpg",
+  "zz-asosiy-salat-2": "menu/zz-asosiy-salat-2-2.jpg",
+  "zz-asosiy-salat-3": "menu/zz-asosiy-salat-3-2.jpg",
+  "zz-asosiy-salat-4": "menu/zz-asosiy-salat-4-3.jpg",
+  "zz-asosiy-salat-5": "menu/zz-asosiy-salat-5-5.jpg",
+  "zz-asosiy-salat-6": "menu/zz-asosiy-salat-6-0.jpg",
+  "zz-asosiy-salat-8": "menu/zz-asosiy-salat-8-1.jpg",
+  "zz-asosiy-salat-9": "menu/zz-asosiy-salat-5-5.jpg",
+  "zz-asosiy-salat-10": "menu/zz-asosiy-salat-10-0.jpg",
+  "zz-asosiy-salat-11": "menu/zz-asosiy-salat-11-1.jpg",
+  "zz-asosiy-salat-12": "menu/zz-asosiy-salat-12-4.jpg",
+  "zz-asosiy-salat-13": "menu/zz-asosiy-salat-13-4.jpg",
+  "zz-asosiy-salat-14": "menu/zz-asosiy-salat-14-6.jpg",
+  "zz-asosiy-salat-15": "menu/zz-asosiy-salat-15-3.jpg",
+  "zz-asosiy-salat-16": "menu/zz-asosiy-salat-16-2.jpg",
+  "zz-asosiy-salat-17": "menu/zz-asosiy-salat-17-4.jpg",
+  "zz-asosiy-salat-18": "menu/zz-asosiy-salat-18-1.jpg",
+  "zz-asosiy-salat-19": "menu/zz-asosiy-salat-19-4.jpg",
+  "zz-asosiy-salat-22": "menu/zz-asosiy-salat-22-1.jpg",
+  "zz-asosiy-salat-23": "menu/zz-asosiy-salat-23-7.jpg",
+  "zz-asosiy-salat-24": "menu/zz-asosiy-salat-24-7.jpg",
+  "zz-ichimlik-1": "menu/zz-ichimlik-1-3.jpg",
+  "zz-ichimlik-2": "menu/zz-ichimlik-2-5.jpg",
+  "zz-ichimlik-3": "menu/zz-ichimlik-2-5.jpg",
+  "zz-ichimlik-4": "menu/zz-ichimlik-4-5.jpg",
+  "zz-ichimlik-5": "menu/zz-ichimlik-5-6.jpg",
+  "zz-ichimlik-9": "menu/zz-ichimlik-9-6.jpg",
+  "zz-ichimlik-10": "menu/zz-ichimlik-10-6.jpg",
+  "zz-ichimlik-11": "menu/zz-ichimlik-11-7.jpg",
+  "zz-ichimlik-13": "menu/zz-ichimlik-13-2.jpg",
+  "zz-ichimlik-16": "menu/zz-ichimlik-16-6.jpg",
+  "zz-ichimlik-17": "menu/zz-ichimlik-17-0.jpg",
+  "zz-ichimlik-18": "menu/zz-ichimlik-10-6.jpg",
+  "zz-ichimlik-20": "menu/zz-ichimlik-20-4.jpg",
+  "zz-ichimlik-21": "menu/zz-ichimlik-20-4.jpg",
+  "zz-ichimlik-22": "menu/zz-ichimlik-22-2.jpg",
+  "zz-ichimlik-23": "menu/zz-ichimlik-23-0.jpg",
+  "zz-ichimlik-24": "menu/zz-ichimlik-24-4.jpg",
+  "zz-ichimlik-25": "menu/zz-ichimlik-25-5.jpg"
+};
+
 export function seedMenu(): { categories: Category[]; products: Product[] } {
   const categories: Category[] = [];
   const products: Product[] = [];
@@ -57,7 +117,7 @@ export function seedMenu(): { categories: Category[]; products: Product[] } {
     c.items.forEach(([name, price, unit, image], pi) => {
       products.push({
         id: `zz-${c.id}-${pi + 1}`, categoryId: `zz-${c.id}`, name, price, unit,
-        image: image ? `menu/${image}.jpg` : null, sortOrder: pi, source: "local",
+        image: image ? `menu/${image}.jpg` : MENU_IMAGES[`zz-${c.id}-${pi + 1}`] ?? null, sortOrder: pi, source: "local",
       });
     });
   });

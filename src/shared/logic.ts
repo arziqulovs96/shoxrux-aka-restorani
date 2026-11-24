@@ -1,5 +1,5 @@
 // Kassa mantig‘i: sof funksiyalar (testlanadi). Main jarayon ma'lumotni shu orqali o‘zgartiradi.
-import { MENU_SEED_VERSION, seedMenu } from "./menuSeed";
+import { MENU_IMAGES, MENU_IMAGES_VERSION, MENU_SEED_VERSION, seedMenu } from "./menuSeed";
 import type {
   CashEntry, Category, Check, Data, Line, Order, OrderType, Payment, Product, Settings, Staff,
 } from "./types";
@@ -284,6 +284,15 @@ export function applyMenuSeed(d: Data): boolean {
   d.recent = [];
   d.settings.siteSync = false;
   d.menuSeed = MENU_SEED_VERSION;
+  d.menuImages = MENU_IMAGES_VERSION;
+  return true;
+}
+
+/** Rasmsiz mahsulotlarga yangi rasmlarni qo‘yadi (o‘zlari qo‘ygan rasm va narxlarga tegmaydi) */
+export function applyMenuImages(d: Data): boolean {
+  if ((d.menuImages ?? 0) >= MENU_IMAGES_VERSION) return false;
+  for (const p of d.local.products) if (!p.image && MENU_IMAGES[p.id]) p.image = MENU_IMAGES[p.id];
+  d.menuImages = MENU_IMAGES_VERSION;
   return true;
 }
 

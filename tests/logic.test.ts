@@ -150,6 +150,23 @@ describe("Zim-Zim menyusi va shashlikxona", () => {
     expect(m.products).toHaveLength(87);
     expect(m.products.filter((p) => p.name.startsWith("Manti")).map((p) => [p.name, p.price])).toEqual([["Manti (1 porsiya, 5 dona)", 45000], ["Manti (dona)", 9000]]);
     expect(L.applyMenuSeed(d)).toBe(false); // ikkinchi marta tegmaydi
+    expect(m.products.filter((p) => p.image).length).toBeGreaterThanOrEqual(69);
+  });
+
+  it("1.2.0 o‘rnatilgan kassada rasmsiz mahsulotlarga rasm qo‘yiladi, o‘zgartirilgan narx va rasmga tegilmaydi", () => {
+    const d = L.emptyData();
+    L.applyMenuSeed(d);
+    for (const p of d.local.products) if (p.image?.startsWith("menu/zz-")) p.image = null; // 1.2.0 holati
+    d.menuImages = 0;
+    const sezar = d.local.products.find((p) => p.name === "Sezar")!;
+    sezar.price = 38000;
+    const smak = d.local.products.find((p) => p.name === "Smak")!;
+    smak.image = "kassa-img://r/oz.jpg";
+    expect(L.applyMenuImages(d)).toBe(true);
+    expect(sezar.image).toMatch(/^menu\/zz-salat-1/);
+    expect(sezar.price).toBe(38000);
+    expect(smak.image).toBe("kassa-img://r/oz.jpg");
+    expect(L.applyMenuImages(d)).toBe(false);
   });
 
   it("Tasdiqlashda faqat shashliklar shashlikxonaga yo‘naltiriladi", () => {

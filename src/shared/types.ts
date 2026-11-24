@@ -158,6 +158,8 @@ export interface Data {
   counter: number;
   /** Qaysi standart menyu o‘rnatilgan (Zim-Zim menyusi) */
   menuSeed?: number;
+  /** Menyuga internetdan rasmlar qo‘shilgan versiya */
+  menuImages?: number;
 }
 
 /** Oynaga yuboriladigan holat (PIN kodlarsiz) */

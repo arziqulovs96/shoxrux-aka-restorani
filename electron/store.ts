@@ -2,7 +2,7 @@
 import { app } from "electron";
 import fs from "node:fs";
 import path from "node:path";
-import { applyMenuSeed, normalize, splitOld } from "../src/shared/logic";
+import { applyMenuImages, applyMenuSeed, normalize, splitOld } from "../src/shared/logic";
 import type { Data } from "../src/shared/types";
 
 const dir = () => app.getPath("userData");
@@ -20,7 +20,7 @@ export function load(): Data {
     try {
       data = normalize(JSON.parse(fs.readFileSync(f, "utf8")));
       archiveOld();
-      if (applyMenuSeed(data)) writeNow();
+      if (applyMenuSeed(data) || applyMenuImages(data)) writeNow();
       return data;
     } catch {
       // buzilgan bo‘lsa keyingisini sinaymiz

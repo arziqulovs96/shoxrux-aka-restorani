@@ -1,0 +1,410 @@
+[
+ {
+  "file": "zz-salat-1-6.jpg",
+  "for": "Sezar",
+  "source": "wikimedia",
+  "page": "https://commons.wikimedia.org/wiki/File:Caesar_Salad_from_Tony_Roma_Restaurant-_March_2024_02.jpg",
+  "license": "CC BY-SA 4.0",
+  "author": "Banej"
+ },
+ {
+  "file": "zz-salat-4-5.jpg",
+  "for": "Smak",
+  "source": "wikimedia",
+  "page": "https://commons.wikimedia.org/wiki/File:Flickr_sa_ku_ra_10556400--Chicken_salad.jpg",
+  "license": "CC BY 2.0",
+  "author": "sakura"
+ },
+ {
+  "file": "zz-salat-5-7.jpg",
+  "for": "Yaponcha",
+  "source": "openverse:flickr",
+  "page": "https://www.flickr.com/photos/49978063@N00/5473790679",
+  "license": "by 2.0",
+  "author": "khawkins04"
+ },
+ {
+  "file": "zz-salat-6-7.jpg",
+  "for": "Aziya",
+  "source": "openverse:flickr",
+  "page": "https://www.flickr.com/photos/60216279@N00/17192334419",
+  "license": "by 2.0",
+  "author": "milo-photo"
+ },
+ {
+  "file": "zz-salat-7-5.jpg",
+  "for": "Oliviya",
+  "source": "wikimedia",
+  "page": "https://commons.wikimedia.org/wiki/File:2023_Sa%C5%82atka_jarzynowa_(1).jpg",
+  "license": "CC BY-SA 4.0",
+  "author": "Jacek Halicki"
+ },
+ {
+  "file": "zz-salat-8-6.jpg",
+  "for": "Kapriz",
+  "source": "wikimedia",
+  "page": "https://commons.wikimedia.org/wiki/File:Seven_layer_salad.jpg",
+  "license": "CC BY-SA 2.0",
+  "author": "JaguarJulie"
+ },
+ {
+  "file": "zz-salat-9-2.jpg",
+  "for": "Fransuzcha salat",
+  "source": "openverse:flickr",
+  "page": "https://www.flickr.com/photos/10559879@N00/4249593792",
+  "license": "by-sa 2.0",
+  "author": "avlxyz"
+ },
+ {
+  "file": "zz-birinchi-2-4.jpg",
+  "for": "Borsh",
+  "source": "wikimedia",
+  "page": "https://commons.wikimedia.org/wiki/File:Borscht_with_bread.jpg",
+  "license": "CC BY-SA 2.0",
+  "author": "Juerg Vollmer from Zürich, Schweiz"
+ },
+ {
+  "file": "zz-birinchi-3-4.jpg",
+  "for": "Tiftel sho‘rva",
+  "source": "wikimedia",
+  "page": "https://commons.wikimedia.org/wiki/File:Meat_ball_soup.JPG",
+  "license": "CC BY-SA 3.0",
+  "author": "Biso"
+ },
+ {
+  "file": "zz-birinchi-5-5.jpg",
+  "for": "Grechka",
+  "source": "wikimedia",
+  "page": "https://commons.wikimedia.org/wiki/File:%C4%8Cernobyl,_135.jpg",
+  "license": "CC BY-SA 3.0",
+  "author": "Honza Groh (Jagro)"
+ },
+ {
+  "file": "zz-birinchi-6-3.jpg",
+  "for": "Olibqochar",
+  "source": "openverse:flickr",
+  "page": "https://www.flickr.com/photos/7927684@N03/8565236767",
+  "license": "by 2.0",
+  "author": "jeffreyw"
+ },
+ {
+  "file": "zz-birinchi-8-1.jpg",
+  "for": "Kalla pocha",
+  "source": "wikimedia",
+  "page": "https://commons.wikimedia.org/wiki/File:Azerbaijani_khash.jpg",
+  "license": "CC BY-SA 4.0",
+  "author": "Interfase"
+ },
+ {
+  "file": "zz-birinchi-10-4.jpg",
+  "for": "Kalla pocha 100 g",
+  "source": "wikimedia",
+  "page": "https://commons.wikimedia.org/wiki/File:Khash_(dish).jpg",
+  "license": "Public domain",
+  "author": "ru:Участник:Aydin"
+ },
+ {
+  "file": "zz-asosiy-9-6.jpg",
+  "for": "Koreyka (qo‘y biqinchasi)",
+  "source": "wikimedia",
+  "page": "https://commons.wikimedia.org/wiki/File:Grilled_lamb_ribs_2.jpg",
+  "license": "CC BY-SA 4.0",
+  "author": "Baoothersks"
+ },
+ {
+  "file": "zz-maxsus-1-7.jpg",
+  "for": "Moloti + Buxanka",
+  "source": "openverse:flickr",
+  "page": "https://www.flickr.com/photos/46944656@N00/155147995",
+  "license": "by 2.0",
+  "author": "Samer Farha"
+ },
+ {
+  "file": "zz-asosiy-salat-1-0.jpg",
+  "for": "Pamidor salat",
+  "source": "openverse:flickr",
+  "page": "https://www.flickr.com/photos/18295242@N00/250225446",
+  "license": "by-sa 2.0",
+  "author": "Laurel Fan"
+ },
+ {
+  "file": "zz-asosiy-salat-2-2.jpg",
+  "for": "Pamidor salat (katta)",
+  "source": "openverse:flickr",
+  "page": "https://www.flickr.com/photos/18295242@N00/3124250702",
+  "license": "by-sa 2.0",
+  "author": "Laurel Fan"
+ },
+ {
+  "file": "zz-asosiy-salat-3-2.jpg",
+  "for": "Chiroqchi salat",
+  "source": "wikimedia",
+  "page": "https://commons.wikimedia.org/wiki/File:%27Achchiq-chuchuk%27_-_uzbek_salad.jpg",
+  "license": "CC BY-SA 3.0",
+  "author": "Shuhrataxmedov"
+ },
+ {
+  "file": "zz-asosiy-salat-4-3.jpg",
+  "for": "Qatiq",
+  "source": "openverse:rawpixel",
+  "page": "https://www.rawpixel.com/image/5922745/photo-image-public-domain-plant-green",
+  "license": "cc0 1.0",
+  "author": ""
+ },
+ {
+  "file": "zz-asosiy-salat-5-5.jpg",
+  "for": "Non",
+  "source": "wikimedia",
+  "page": "https://commons.wikimedia.org/wiki/File:Bread_in_Uzbek_kitchen.jpg",
+  "license": "CC BY-SA 4.0",
+  "author": "Sinchalak Musulmon"
+ },
+ {
+  "file": "zz-asosiy-salat-6-0.jpg",
+  "for": "Bo‘lka",
+  "source": "openverse:flickr",
+  "page": "https://www.flickr.com/photos/13261823@N05/2104039823",
+  "license": "by 2.0",
+  "author": "Teuobk"
+ },
+ {
+  "file": "zz-asosiy-salat-8-1.jpg",
+  "for": "Limon choy",
+  "source": "openverse:flickr",
+  "page": "https://www.flickr.com/photos/23851271@N00/81522097",
+  "license": "by-sa 2.0",
+  "author": "Mr Wabu"
+ },
+ {
+  "file": "zz-asosiy-salat-10-0.jpg",
+  "for": "Bo‘lka 0.5",
+  "source": "openverse:flickr",
+  "page": "https://www.flickr.com/photos/11018968@N00/8311347461",
+  "license": "by 2.0",
+  "author": "Editor B"
+ },
+ {
+  "file": "zz-asosiy-salat-11-1.jpg",
+  "for": "Turk choy",
+  "source": "openverse:flickr",
+  "page": "https://www.flickr.com/photos/15087210@N00/3468680402",
+  "license": "by-sa 2.0",
+  "author": "henribergius"
+ },
+ {
+  "file": "zz-asosiy-salat-12-4.jpg",
+  "for": "Bir kishilik salat",
+  "source": "openverse:flickr",
+  "page": "https://www.flickr.com/photos/18295242@N00/250225446",
+  "license": "by-sa 2.0",
+  "author": "Laurel Fan"
+ },
+ {
+  "file": "zz-asosiy-salat-13-4.jpg",
+  "for": "Somsa 10 000",
+  "source": "wikimedia",
+  "page": "https://commons.wikimedia.org/wiki/File:Ouzb%C3%A9kistan-Samsas.jpg",
+  "license": "CC BY-SA 4.0",
+  "author": "Ji-Elle"
+ },
+ {
+  "file": "zz-asosiy-salat-14-6.jpg",
+  "for": "Somsa 15 000",
+  "source": "openverse:flickr",
+  "page": "https://www.flickr.com/photos/29727781@N08/4913340298",
+  "license": "by-sa 2.0",
+  "author": "politizer"
+ },
+ {
+  "file": "zz-asosiy-salat-15-3.jpg",
+  "for": "Shashlik kombo set (4 kishilik)",
+  "source": "openverse:flickr",
+  "page": "https://www.flickr.com/photos/10559879@N00/4249594574",
+  "license": "by-sa 2.0",
+  "author": "avlxyz"
+ },
+ {
+  "file": "zz-asosiy-salat-16-2.jpg",
+  "for": "Xalades",
+  "source": "wikimedia",
+  "page": "https://commons.wikimedia.org/wiki/File:GelatinaDiMaiale.JPG",
+  "license": "Public domain",
+  "author": "Gmelfi"
+ },
+ {
+  "file": "zz-asosiy-salat-17-4.jpg",
+  "for": "Salonni karam",
+  "source": "wikimedia",
+  "page": "https://commons.wikimedia.org/wiki/File:Bowl%27o%27Coleslaw_modified.jpg",
+  "license": "CC BY-SA 2.0",
+  "author": ""
+ },
+ {
+  "file": "zz-asosiy-salat-18-1.jpg",
+  "for": "Meva assorti",
+  "source": "openverse:flickr",
+  "page": "https://www.flickr.com/photos/10559879@N00/297986261",
+  "license": "by-sa 2.0",
+  "author": "avlxyz"
+ },
+ {
+  "file": "zz-asosiy-salat-19-4.jpg",
+  "for": "Karam salat katta",
+  "source": "wikimedia",
+  "page": "https://commons.wikimedia.org/wiki/File:Malfouf_salad.jpg",
+  "license": "CC BY-SA 4.0",
+  "author": "Canbel"
+ },
+ {
+  "file": "zz-asosiy-salat-22-1.jpg",
+  "for": "Limon",
+  "source": "openverse:flickr",
+  "page": "https://www.flickr.com/photos/36867870@N04/6871306107",
+  "license": "by 2.0",
+  "author": "_Libby_"
+ },
+ {
+  "file": "zz-asosiy-salat-23-7.jpg",
+  "for": "Desert",
+  "source": "openverse:flickr",
+  "page": "https://www.flickr.com/photos/14052937@N04/22011162965",
+  "license": "by 2.0",
+  "author": "Leslie Richards"
+ },
+ {
+  "file": "zz-asosiy-salat-24-7.jpg",
+  "for": "Pista 10",
+  "source": "openverse:rawpixel",
+  "page": "https://www.rawpixel.com/image/5917367/image-public-domain-plant-fruit",
+  "license": "cc0 1.0",
+  "author": ""
+ },
+ {
+  "file": "zz-ichimlik-1-3.jpg",
+  "for": "Gazli suv 0.5",
+  "source": "openverse:flickr",
+  "page": "https://www.flickr.com/photos/53133240@N00/7985698964",
+  "license": "by 2.0",
+  "author": "Muffet"
+ },
+ {
+  "file": "zz-ichimlik-2-5.jpg",
+  "for": "Cola 0.5",
+  "source": "wikimedia",
+  "page": "https://commons.wikimedia.org/wiki/File:15-09-26-RalfR-WLC-0098_-_Coca-Cola_glass_bottle_(Germany).jpg",
+  "license": "Public domain",
+  "author": "Ralf Roletschek"
+ },
+ {
+  "file": "zz-ichimlik-4-5.jpg",
+  "for": "7UP",
+  "source": "wikimedia",
+  "page": "https://commons.wikimedia.org/wiki/File:7UP_Bottle.jpg",
+  "license": "CC BY-SA 2.5 mx",
+  "author": "Aurelio de Sandoval"
+ },
+ {
+  "file": "zz-ichimlik-5-6.jpg",
+  "for": "Cola 2 l",
+  "source": "openverse:flickr",
+  "page": "https://www.flickr.com/photos/55206343@N06/5570530073",
+  "license": "by 2.0",
+  "author": "In 2 Making Images From °L.A."
+ },
+ {
+  "file": "zz-ichimlik-9-6.jpg",
+  "for": "Colacha butilka",
+  "source": "wikimedia",
+  "page": "https://commons.wikimedia.org/wiki/File:Coca-Cola_glass_bottle.png",
+  "license": "CC BY-SA 4.0",
+  "author": "Oleg Yunakov"
+ },
+ {
+  "file": "zz-ichimlik-10-6.jpg",
+  "for": "Suv 1 l",
+  "source": "wikimedia",
+  "page": "https://commons.wikimedia.org/wiki/File:Water_bottle_11-26-2025.jpg",
+  "license": "CC BY 4.0",
+  "author": "WikiGrower1"
+ },
+ {
+  "file": "zz-ichimlik-11-7.jpg",
+  "for": "Obi Hayot",
+  "source": "openverse:flickr",
+  "page": "https://www.flickr.com/photos/188296186@N07/49860864262",
+  "license": "by-sa 2.0",
+  "author": "Aqua Science Arizona"
+ },
+ {
+  "file": "zz-ichimlik-13-2.jpg",
+  "for": "Sting banka",
+  "source": "wikimedia",
+  "page": "https://commons.wikimedia.org/wiki/File:Sting_energy_drink_2.jpg",
+  "license": "CC BY-SA 4.0",
+  "author": "Gannu03"
+ },
+ {
+  "file": "zz-ichimlik-16-6.jpg",
+  "for": "Rockstar",
+  "source": "wikimedia",
+  "page": "https://commons.wikimedia.org/wiki/File:Rockstar_Energy_Drink.jpg",
+  "license": "CC BY-SA 4.0",
+  "author": "Cary Ford"
+ },
+ {
+  "file": "zz-ichimlik-17-0.jpg",
+  "for": "Pepsi 0.5",
+  "source": "wikimedia",
+  "page": "https://commons.wikimedia.org/wiki/File:Pepsi_355_ml,_591_ml,_and_710_ml,_Canada_(obverse),_2026-03-05.jpg",
+  "license": "Public domain",
+  "author": "Chris Woodrich"
+ },
+ {
+  "file": "zz-ichimlik-20-4.jpg",
+  "for": "Pepsi 1 l",
+  "source": "wikimedia",
+  "page": "https://commons.wikimedia.org/wiki/File:Pepsi_355_ml,_591_ml,_and_710_ml,_Canada_(obverse),_2026-03-05.jpg",
+  "license": "Public domain",
+  "author": "Chris Woodrich"
+ },
+ {
+  "file": "zz-ichimlik-22-2.jpg",
+  "for": "Pepsi 2 l",
+  "source": "openverse:flickr",
+  "page": "https://www.flickr.com/photos/39160147@N03/14244039766",
+  "license": "by 2.0",
+  "author": "JeepersMedia"
+ },
+ {
+  "file": "zz-ichimlik-23-0.jpg",
+  "for": "Fanta 1.5",
+  "source": "wikimedia",
+  "page": "https://commons.wikimedia.org/wiki/File:Fanta_Orange_Glass_Bottle.jpg",
+  "license": "CC BY-SA 4.0",
+  "author": "Ayakln"
+ },
+ {
+  "file": "zz-ichimlik-24-4.jpg",
+  "for": "Fanta 1 l",
+  "source": "wikimedia",
+  "page": "https://commons.wikimedia.org/wiki/File:Fanta_Orange_Glass_Bottle.jpg",
+  "license": "CC BY-SA 4.0",
+  "author": "Ayakln"
+ },
+ {
+  "file": "zz-ichimlik-25-5.jpg",
+  "for": "Kola 1.5",
+  "source": "wikimedia",
+  "page": "https://commons.wikimedia.org/wiki/File:15-09-26-RalfR-WLC-0098_-_Coca-Cola_glass_bottle_(Germany).jpg",
+  "license": "Public domain",
+  "author": "Ralf Roletschek"
+ },
+ {
+  "file": "zz-asosiy-11-2.jpg",
+  "for": "Kartoshka fri",
+  "source": "openverse:flickr",
+  "page": "https://www.flickr.com/photos/60944931@N00/5729028796",
+  "license": "by 2.0",
+  "author": "waferboard"
+ }
+]
