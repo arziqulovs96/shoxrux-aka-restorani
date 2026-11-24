@@ -3,7 +3,7 @@ import { call, onState, onUpdate } from "./api";
 import emblem from "./assets/emblem.svg";
 import { openOrders, type Actor } from "./shared/logic";
 import type { PublicState, UpdateState } from "./shared/types";
-import { Icon, ROLE, hhmm, useClock, useToast } from "./ui";
+import { Icon, Modal, ROLE, hhmm, useClock, useToast } from "./ui";
 import { Login } from "./screens/Login";
 import { Tables } from "./screens/Tables";
 import { OrderScreen } from "./screens/OrderScreen";
@@ -12,6 +12,7 @@ import { Reports } from "./screens/Reports";
 import { History } from "./screens/History";
 import { Stoplist } from "./screens/Stoplist";
 import { Cash } from "./screens/Cash";
+import { Debts } from "./screens/Debts";
 import { Settings } from "./screens/Settings";
 import { UpdateDialog } from "./screens/UpdateDialog";
 
@@ -24,6 +25,7 @@ export type View =
   | { name: "history" }
   | { name: "stoplist" }
   | { name: "cash" }
+  | { name: "debts" }
   | { name: "settings" };
 
 export interface Ctx {
@@ -114,6 +116,7 @@ export function App() {
         {view.name === "history" && <History ctx={ctx} />}
         {view.name === "stoplist" && <Stoplist ctx={ctx} />}
         {view.name === "cash" && <Cash ctx={ctx} />}
+        {view.name === "debts" && <Debts ctx={ctx} />}
         {view.name === "settings" && <Settings ctx={ctx} upd={upd} onUpdate={() => setUpdOpen(true)} />}
       </main>
       <StatusBar s={s} />
@@ -138,6 +141,9 @@ function TopBar({ ctx, tab, counts, onLock, updateBadge, upd, onUpdate }: {
     toast("Menyu yangilandi");
   };
 
+  const debtCount = s.debts.filter((x) => !x.paidAt).length;
+  const [help, setHelp] = useState(false);
+
   const tabs = [
     { id: "tables", label: "Zal", icon: "table", n: counts.zal },
     { id: "olib", label: "Olib ketish", icon: "bag", n: counts.olib },
@@ -149,6 +155,8 @@ function TopBar({ ctx, tab, counts, onLock, updateBadge, upd, onUpdate }: {
     { icon: "history", label: "Buyurtmalar tarixi", act: () => go({ name: "history" }) },
     { icon: "ban", label: "Stop-list", act: () => go({ name: "stoplist" }), roles: ["admin", "kassir"] },
     { icon: "cash", label: "Kirim / Chiqim", act: () => go({ name: "cash" }), roles: ["admin", "kassir"] },
+    { icon: "wallet", label: `Qarzlar${debtCount ? ` (${debtCount})` : ""}`, act: () => go({ name: "debts" }), roles: ["admin", "kassir"] },
+    { icon: "sync", label: "Sinxronlash (menyu)", act: sync },
     { icon: "gear", label: "Sozlamalar", act: () => go({ name: "settings" }), roles: ["admin"] },
     { icon: "fullscreen", label: "To‘liq ekran (F11)", act: () => call("app:fullscreen") },
   ];
@@ -159,7 +167,7 @@ function TopBar({ ctx, tab, counts, onLock, updateBadge, upd, onUpdate }: {
         <img src={emblem} alt="" />
         <div>
           <b>Do‘stlik</b>
-          <span>Kassa</span>
+          <span>{ROLE[me.role]}</span>
         </div>
       </div>
       <nav className="tabs">
@@ -183,13 +191,18 @@ function TopBar({ ctx, tab, counts, onLock, updateBadge, upd, onUpdate }: {
         <button className="icon-btn" onClick={onLock} title="Qulflash"><Icon name="lock" /></button>
         <div className="me-wrap">
           <button className="me" onClick={() => setMenuOpen((v) => !v)}>
-            <span className="avatar">{me.name.slice(0, 1).toUpperCase()}</span>
+            <span className={`avatar ${me.role}`}>{me.name.slice(0, 1).toUpperCase()}</span>
             <span className="me-txt"><b>{me.name}</b><small>{ROLE[me.role]}</small></span>
           </button>
           {menuOpen && (
             <>
               <div className="menu-bg" onClick={() => setMenuOpen(false)} />
               <div className="menu">
+                <div className="menu-who">
+                  <span className={`avatar lg ${me.role}`}>{me.name.slice(0, 1).toUpperCase()}</span>
+                  <b>{me.name}</b>
+                  <span className={`role-chip ${me.role}`}>{ROLE[me.role]}</span>
+                </div>
                 <div className="menu-zoom">
                   <span><Icon name="zoom" size={18} /> Masshtab</span>
                   <div>
@@ -203,6 +216,9 @@ function TopBar({ ctx, tab, counts, onLock, updateBadge, upd, onUpdate }: {
                     <Icon name={i.icon} size={19} /> {i.label}
                   </button>
                 ))}
+                <button onClick={() => { setMenuOpen(false); setHelp(true); }}>
+                  <Icon name="user" size={19} /> Texnik yordam
+                </button>
                 <button onClick={() => { setMenuOpen(false); onUpdate(); }}>
                   <Icon name="download" size={19} /> Yangilanish
                   {updateBadge && <i className="dot" />}
@@ -215,6 +231,18 @@ function TopBar({ ctx, tab, counts, onLock, updateBadge, upd, onUpdate }: {
           )}
         </div>
       </div>
+      {help && (
+        <Modal title="Texnik yordam" onClose={() => setHelp(false)} width={440}>
+          <div className="upd">
+            <div className="upd-logo"><img src={emblem} alt="" /></div>
+            <h2>Sardor Arziqulov</h2>
+            <p className="muted">Dastur muallifi. Muammo yoki taklif bo‘lsa yozing:</p>
+            <div className="rrow" style={{ width: "100%" }}><span>Telefon</span><b>+998 77 079 49 04</b></div>
+            <div className="rrow" style={{ width: "100%" }}><span>Telegram</span><b>@Arzikhulov_4904</b></div>
+            <div className="rrow" style={{ width: "100%" }}><span>Versiya</span><b>{s.appVersion}</b></div>
+          </div>
+        </Modal>
+      )}
     </header>
   );
 }

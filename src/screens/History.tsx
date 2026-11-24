@@ -39,7 +39,7 @@ export function History({ ctx }: { ctx: Ctx }) {
           <thead><tr><th>№</th><th>Sana</th><th>Joy</th><th>Ofitsiant</th><th>Holat</th><th className="r">Summa</th></tr></thead>
           <tbody>
             {list.map((o) => (
-              <tr key={o.id} onClick={() => setSel(o)}>
+              <tr key={o.id} className="click" onClick={() => setSel(o)}>
                 <td><b>{o.no}</b></td>
                 <td>{day(o.createdAt)} {hhmm(o.createdAt)}</td>
                 <td>{where(o)}</td>

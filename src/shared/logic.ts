@@ -6,19 +6,21 @@ import type {
 export const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
 
 export const DEFAULT_SETTINGS: Settings = {
-  restaurantName: "Do‘stlik oilaviy restorani",
+  restaurantName: "Do‘stlik oshxonasi",
   address: "",
   phone: "",
   serviceRate: 0,
   serviceOnTakeaway: false,
   apiUrl: "https://dostlik-res.netlify.app/api",
-  receiptFooter: "Xaridingiz uchun rahmat! Yana kutib qolamiz.",
+  receiptFooter: "Xaridingiz uchun rahmat!",
   receiptPrinter: "",
   kitchenPrinter: "",
   paperWidth: 80,
   printOnPay: true,
   printKitchen: false,
   zoom: 100,
+  startBackground: "photo:zal",
+  receiptNote: "",
   halls: [
     { id: "zal", name: "ZAL", tables: 14 },
     { id: "zal2", name: "ZAL 2", tables: 11 },
@@ -39,6 +41,8 @@ export function emptyData(): Data {
     stoplist: [],
     orders: [],
     cash: [],
+    debts: [],
+    recent: [],
     counter: 0,
   };
 }
@@ -47,6 +51,9 @@ export function emptyData(): Data {
 export function normalize(raw: Partial<Data> | null | undefined): Data {
   const d = emptyData();
   if (!raw || typeof raw !== "object") return d;
+  // 1.0.x dagi standart yozuvlar yangisiga almashtiriladi (o‘zgartirilgan bo‘lsa — tegilmaydi)
+  if (raw.settings?.restaurantName === "Do‘stlik oilaviy restorani") raw.settings.restaurantName = d.settings.restaurantName;
+  if (raw.settings?.receiptFooter === "Xaridingiz uchun rahmat! Yana kutib qolamiz.") raw.settings.receiptFooter = d.settings.receiptFooter;
   return {
     ...d,
     ...raw,
@@ -297,17 +304,23 @@ function closeIfDone(o: Order) {
   }
 }
 
-export function pay(d: Data, orderId: string, checkId: string, payments: Payment[], by: Actor) {
+export interface Debtor { name: string; phone: string; reason: string }
+
+/** Karta/QR/Click kabi naqdsiz to‘lovlar — ortiqcha summa olinmaydi */
+export const isCashless = (m: Payment["method"]) => m !== "naqd" && m !== "qarz";
+
+export function pay(d: Data, orderId: string, checkId: string, payments: Payment[], by: Actor, debtor?: Debtor) {
   if (by.role === "ofitsiant") throw new KassaError("To‘lovni faqat kassir yoki admin qabul qiladi");
   const o = findOrder(d, orderId);
   const c = findCheck(o, checkId);
   if (!c.lines.length) throw new KassaError("Hisob bo‘sh");
   const { total } = checkTotals(o, c);
-  const paid = payments.reduce((s, p) => s + p.amount, 0);
+  const list = payments.filter((p) => p.amount > 0);
+  const paid = list.reduce((s, p) => s + p.amount, 0);
   if (paid < total) throw new KassaError("To‘lov summasi yetarli emas");
   // Qaytim faqat naqddan beriladi: yozuvda aniq summa saqlanadi
   let extra = paid - total;
-  const clean = payments
+  const clean = list
     .map((p) => {
       if (p.method === "naqd" && extra > 0) {
         const cut = Math.min(extra, p.amount);
@@ -317,14 +330,64 @@ export function pay(d: Data, orderId: string, checkId: string, payments: Payment
       return p;
     })
     .filter((p) => p.amount > 0);
-  if (extra > 0) throw new KassaError("Karta orqali ortiqcha summa olib bo‘lmaydi");
+  if (extra > 0) throw new KassaError("Naqdsiz to‘lovda yoki qarzda ortiqcha summa bo‘lmaydi");
+  const debt = clean.filter((p) => p.method === "qarz").reduce((s, p) => s + p.amount, 0);
+  if (debt > 0) {
+    if (!debtor || (!debtor.name.trim() && !debtor.phone.trim())) throw new KassaError("Qarzga yozish uchun mijoz ismi yoki telefonini kiriting");
+    d.debts.push({
+      id: uid(), orderId: o.id, orderNo: o.no, amount: debt, customerName: debtor.name.trim(), phone: debtor.phone.trim(),
+      reason: debtor.reason.trim(), createdAt: new Date().toISOString(), cashierName: by.name, paidAt: null, paidMethod: null, paidBy: "",
+    });
+  }
   c.paid = true;
   c.payments = clean;
   c.total = total;
   c.paidAt = new Date().toISOString();
+  c.paidBy = by.name;
   closeIfDone(o);
   touch(o);
   return { order: o, check: c, change: paid - total };
+}
+
+/** Qarzni to‘lash (mijoz keyin kelib to‘laganda) */
+export function payDebt(d: Data, debtId: string, method: Payment["method"], by: Actor) {
+  if (by.role === "ofitsiant") throw new KassaError("Qarzni faqat kassir yoki admin yopadi");
+  if (method === "qarz") throw new KassaError("To‘lov turini tanlang");
+  const x = d.debts.find((v) => v.id === debtId);
+  if (!x) throw new KassaError("Qarz topilmadi");
+  if (x.paidAt) throw new KassaError("Bu qarz allaqachon to‘langan");
+  x.paidAt = new Date().toISOString();
+  x.paidMethod = method;
+  x.paidBy = by.name;
+  return x;
+}
+
+export function setWaiter(d: Data, orderId: string, staff: { id: string; name: string }, by: Actor) {
+  if (by.role === "ofitsiant") throw new KassaError("Ofitsiantni faqat kassir yoki admin almashtiradi");
+  const o = findOrder(d, orderId);
+  o.waiterId = staff.id;
+  o.waiterName = staff.name;
+  touch(o);
+}
+
+/** Buyurtma turini almashtirish: olib ketish ↔ yetkazish, yoki zaldan olib ketishga */
+export function setType(d: Data, orderId: string, type: "olib" | "yetkaz") {
+  const o = findOrder(d, orderId);
+  o.type = type;
+  o.hallId = null;
+  o.table = null;
+  if (!d.settings.serviceOnTakeaway) o.serviceRate = 0;
+  touch(o);
+}
+
+export function setOrderNote(d: Data, orderId: string, note: string) {
+  const o = findOrder(d, orderId);
+  o.note = note.slice(0, 200);
+  touch(o);
+}
+
+export function remember(d: Data, staffId: string) {
+  d.recent = [staffId, ...d.recent.filter((x) => x !== staffId)].slice(0, 4);
 }
 
 export function cancelOrder(d: Data, orderId: string, reason: string, by: Actor) {
@@ -366,18 +429,25 @@ export interface Report {
   service: number; discount: number; cancelled: number;
   byMethod: Record<string, number>;
   byWaiter: { name: string; orders: number; sum: number }[];
-  byType: Record<string, number>;
+  byCashier: { name: string; checks: number; sum: number; byMethod: Record<string, number> }[];
+  byType: Record<string, { count: number; sum: number }>;
   products: { name: string; qty: number; sum: number }[];
   cashIn: number; cashOut: number; cashInDrawer: number;
+  debtNew: number; debtPaid: Record<string, number>;
+  transactions: { at: string; kind: "tolov" | "qarz-tolov" | "kirim" | "chiqim"; method: string; amount: number; who: string; ref: string }[];
 }
 
-export function report(d: Pick<Data, "orders" | "cash">, from: Date, to: Date): Report {
+const normMethod = (m: string) => (m === "karta" ? "terminal" : m);
+
+export function report(d: Pick<Data, "orders" | "cash" | "debts">, from: Date, to: Date): Report {
   const inRange = (iso: string | null) => !!iso && new Date(iso) >= from && new Date(iso) < to;
   const r: Report = {
     from: from.toISOString(), to: to.toISOString(), revenue: 0, orders: 0, checks: 0, avgCheck: 0, service: 0,
-    discount: 0, cancelled: 0, byMethod: {}, byWaiter: [], byType: {}, products: [], cashIn: 0, cashOut: 0, cashInDrawer: 0,
+    discount: 0, cancelled: 0, byMethod: {}, byWaiter: [], byCashier: [], byType: {}, products: [], cashIn: 0, cashOut: 0,
+    cashInDrawer: 0, debtNew: 0, debtPaid: {}, transactions: [],
   };
   const waiters = new Map<string, { name: string; orders: number; sum: number }>();
+  const cashiers = new Map<string, { name: string; checks: number; sum: number; byMethod: Record<string, number> }>();
   const prods = new Map<string, { name: string; qty: number; sum: number }>();
   const ordersSeen = new Set<string>();
   for (const o of d.orders) {
@@ -392,9 +462,22 @@ export function report(d: Pick<Data, "orders" | "cash">, from: Date, to: Date): 
       if (!ordersSeen.has(o.id)) {
         ordersSeen.add(o.id);
         r.orders++;
+        const bt = r.byType[o.type] ?? { count: 0, sum: 0 };
+        bt.count++;
+        r.byType[o.type] = bt;
       }
-      r.byType[o.type] = (r.byType[o.type] ?? 0) + c.total;
-      for (const p of c.payments) r.byMethod[p.method] = (r.byMethod[p.method] ?? 0) + p.amount;
+      r.byType[o.type].sum += c.total;
+      const cashier = cashiers.get(c.paidBy ?? "—") ?? { name: c.paidBy ?? "—", checks: 0, sum: 0, byMethod: {} };
+      cashier.checks++;
+      cashier.sum += c.total;
+      for (const p of c.payments) {
+        const m = normMethod(p.method);
+        r.byMethod[m] = (r.byMethod[m] ?? 0) + p.amount;
+        cashier.byMethod[m] = (cashier.byMethod[m] ?? 0) + p.amount;
+        if (m === "qarz") r.debtNew += p.amount;
+        r.transactions.push({ at: c.paidAt!, kind: "tolov", method: m, amount: p.amount, who: c.paidBy ?? "", ref: `№${o.no}` });
+      }
+      cashiers.set(cashier.name, cashier);
       const w = waiters.get(o.waiterId) ?? { name: o.waiterName, orders: 0, sum: 0 };
       w.sum += c.total;
       waiters.set(o.waiterId, w);
@@ -407,15 +490,24 @@ export function report(d: Pick<Data, "orders" | "cash">, from: Date, to: Date): 
     }
   }
   for (const o of d.orders) if (ordersSeen.has(o.id)) { const w = waiters.get(o.waiterId); if (w) w.orders++; }
+  for (const x of d.debts ?? []) {
+    if (!x.paidAt || !inRange(x.paidAt) || !x.paidMethod) continue;
+    const m = normMethod(x.paidMethod);
+    r.debtPaid[m] = (r.debtPaid[m] ?? 0) + x.amount;
+    r.transactions.push({ at: x.paidAt, kind: "qarz-tolov", method: m, amount: x.amount, who: x.paidBy, ref: `Qarz №${x.orderNo} ${x.customerName}` });
+  }
   for (const e of d.cash) {
     if (!inRange(e.at)) continue;
     if (e.type === "kirim") r.cashIn += e.amount;
     else r.cashOut += e.amount;
+    r.transactions.push({ at: e.at, kind: e.type, method: "naqd", amount: e.amount, who: e.staffName, ref: e.note });
   }
+  r.transactions.sort((a, b) => b.at.localeCompare(a.at));
   r.avgCheck = r.checks ? Math.round(r.revenue / r.checks) : 0;
   r.byWaiter = [...waiters.values()].sort((a, b) => b.sum - a.sum);
+  r.byCashier = [...cashiers.values()].sort((a, b) => b.sum - a.sum);
   r.products = [...prods.values()].sort((a, b) => b.sum - a.sum);
-  r.cashInDrawer = (r.byMethod.naqd ?? 0) + r.cashIn - r.cashOut;
+  r.cashInDrawer = (r.byMethod.naqd ?? 0) + (r.debtPaid.naqd ?? 0) + r.cashIn - r.cashOut;
   return r;
 }
 

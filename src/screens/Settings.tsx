@@ -46,7 +46,7 @@ function useSave() {
 function General({ ctx }: { ctx: Ctx }) {
   const st = ctx.s.settings;
   const save = useSave();
-  const [f, setF] = useState({ restaurantName: st.restaurantName, address: st.address, phone: st.phone, receiptFooter: st.receiptFooter, serviceRate: st.serviceRate, serviceOnTakeaway: st.serviceOnTakeaway, apiUrl: st.apiUrl });
+  const [f, setF] = useState({ restaurantName: st.restaurantName, address: st.address, phone: st.phone, receiptFooter: st.receiptFooter, receiptNote: st.receiptNote, serviceRate: st.serviceRate, serviceOnTakeaway: st.serviceOnTakeaway, apiUrl: st.apiUrl });
   return (
     <div className="card form">
       <h2>Umumiy sozlamalar</h2>
@@ -54,7 +54,8 @@ function General({ ctx }: { ctx: Ctx }) {
         <label><span className="lbl">Restoran nomi (chekda)</span><input className="input" value={f.restaurantName} onChange={(e) => setF({ ...f, restaurantName: e.target.value })} /></label>
         <label><span className="lbl">Telefon (chekda)</span><input className="input" value={f.phone} onChange={(e) => setF({ ...f, phone: e.target.value })} /></label>
         <label className="full"><span className="lbl">Manzil (chekda)</span><input className="input" value={f.address} onChange={(e) => setF({ ...f, address: e.target.value })} /></label>
-        <label className="full"><span className="lbl">Chek ostidagi yozuv</span><input className="input" value={f.receiptFooter} onChange={(e) => setF({ ...f, receiptFooter: e.target.value })} /></label>
+        <label className="full"><span className="lbl">Chek ostidagi katta yozuv</span><input className="input" value={f.receiptFooter} onChange={(e) => setF({ ...f, receiptFooter: e.target.value })} placeholder="XARIDINGIZ UCHUN RAXMAT!" /></label>
+        <label className="full"><span className="lbl">Chekdagi qo‘shimcha yozuv (telefonlar va h.k.)</span><input className="input" value={f.receiptNote} onChange={(e) => setF({ ...f, receiptNote: e.target.value })} placeholder="Bizda xizmat haqi yo‘q +998 __ ___ __ __" /></label>
         <label><span className="lbl">Xizmat haqi, %</span><input className="input" type="number" min={0} max={50} value={f.serviceRate} onChange={(e) => setF({ ...f, serviceRate: Number(e.target.value) })} /></label>
         <label className="check-row"><input type="checkbox" checked={f.serviceOnTakeaway} onChange={(e) => setF({ ...f, serviceOnTakeaway: e.target.checked })} /> Olib ketish va yetkazishda ham xizmat haqi olinsin</label>
         <label className="full"><span className="lbl">Sayt manzili (menyu shu yerdan olinadi)</span><input className="input" value={f.apiUrl} onChange={(e) => setF({ ...f, apiUrl: e.target.value })} /></label>

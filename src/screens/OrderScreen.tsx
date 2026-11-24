@@ -3,10 +3,10 @@ import { call } from "../api";
 import type { Ctx } from "../App";
 import emblem from "../assets/emblem.svg";
 import { checkTotals, menu, num, orderTotals } from "../shared/logic";
-import type { Check, Line, Order, PayMethod, Payment, Product } from "../shared/types";
-import { Icon, Keypad, METHOD, Modal, elapsed, useClock, useToast } from "../ui";
+import type { Check, Line, Order, PayMethod, Product } from "../shared/types";
+import { Icon, Keypad, Modal, elapsed, useClock, useToast } from "../ui";
 
-type Dialog = null | "pay" | "move" | "cancel" | "discount" | "customer" | { note: Line } | { moveLine: Line } | { preview: string };
+type Dialog = null | "pay" | "move" | "cancel" | "discount" | "customer" | "waiter" | "type" | { note: Line } | { moveLine: Line } | { preview: string };
 
 export function OrderScreen({ ctx, orderId, back }: { ctx: Ctx; orderId: string; back: "tables" | "olib" | "yetkaz" }) {
   const { s, me, go } = ctx;
@@ -24,6 +24,11 @@ export function OrderScreen({ ctx, orderId, back }: { ctx: Ctx; orderId: string;
   const activeCat = cat || categories[0]?.id || "";
   const check = order?.checks.find((c) => c.id === checkId && !c.paid) ?? order?.checks.find((c) => !c.paid);
   const stop = new Set(s.stoplist);
+
+  // Yangi yetkazib berish buyurtmasida mijoz oynasi o‘zi ochiladi
+  useEffect(() => {
+    if (order?.type === "yetkaz" && !order.customer.phone && !order.checks.some((c) => c.lines.length)) setDlg("customer");
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Chiqib ketganda bo‘sh qolgan buyurtma o‘chiriladi
   useEffect(() => () => { call("order:dropIfEmpty", orderId); }, [orderId]);
@@ -68,7 +73,15 @@ export function OrderScreen({ ctx, orderId, back }: { ctx: Ctx; orderId: string;
     run(
       call<{ printed: boolean; count: number }>("order:kitchen", order.id).then((r) => {
         if (!r.count) toast("Yangi taom yo‘q — hammasi yuborilgan", "info");
-        else toast(r.printed ? `Oshxonaga yuborildi va chop etildi (${r.count})` : `Oshxonaga yuborildi (${r.count} ta)`);
+        else toast(r.printed ? `Tasdiqlandi va oshxonaga chop etildi (${r.count})` : `Tasdiqlandi — oshxonaga yuborildi (${r.count} ta)`);
+      }),
+    );
+
+  const billAll = () =>
+    run(
+      call<{ printed: boolean; html: string }>("print:bill", order.id, null, false).then((r) => {
+        if (r.printed) toast("Umumiy chek chop etildi");
+        else setDlg({ preview: r.html });
       }),
     );
 
@@ -124,11 +137,11 @@ export function OrderScreen({ ctx, orderId, back }: { ctx: Ctx; orderId: string;
             <h2>{title}</h2>
             <span className="muted">{sub} · {order.waiterName} · {elapsed(order.createdAt, now)}</span>
           </div>
-          {order.type !== "zal" && (
+          {order.type !== "zal" ? (
             <button className="chip-btn" onClick={() => setDlg("customer")}>
               <Icon name="user" size={16} /> {order.customer.phone || order.customer.name || "Mijoz"}
             </button>
-          )}
+          ) : order.note ? <span className="chip-btn" onClick={() => setDlg("customer")}><Icon name="note" size={16} /> {order.note}</span> : null}
         </div>
 
         <div className="checks">
@@ -152,6 +165,7 @@ export function OrderScreen({ ctx, orderId, back }: { ctx: Ctx; orderId: string;
           )}
         </div>
 
+        <div className="lines-head"><span>Nomi</span><span>Soni</span><span>Summa</span></div>
         <div className="lines" ref={linesRef}>
           {check.lines.map((l) => (
             <div key={l.id} className={`line ${selLine === l.id ? "sel" : ""}`} onClick={() => setSelLine(selLine === l.id ? null : l.id)}>
@@ -200,17 +214,24 @@ export function OrderScreen({ ctx, orderId, back }: { ctx: Ctx; orderId: string;
           {order.checks.length > 1 && <div className="muted small"><span>Butun stol</span><span>{num(all.total)}</span></div>}
         </div>
 
-        <div className="ticket-actions">
-          <button className={`act ${unsent ? "hot" : ""}`} onClick={kitchen}><Icon name="chef" /> Oshxonaga</button>
-          <button className="act" onClick={bill} disabled={!check.lines.length}><Icon name="printer" /> Hisob</button>
-          {canCash && <button className="act" onClick={() => setDlg("discount")}><Icon name="percent" /> Chegirma</button>}
-          {order.type === "zal" && <button className="act" onClick={() => setDlg("move")}><Icon name="swap" /> Ko‘chirish</button>}
-          <button className="act danger" onClick={() => setDlg("cancel")}><Icon name="trash" /> Bekor</button>
+        <div className="tools">
+          <button className="tool" onClick={() => setDlg("type")}><Icon name={order.type === "zal" ? "table" : order.type === "olib" ? "bag" : "bike"} /> Turi</button>
+          <button className="tool" onClick={() => setDlg("waiter")} disabled={!canCash}><Icon name="user" /> Ofitsiant</button>
+          <button className="tool" onClick={bill} disabled={!check.lines.length}><Icon name="printer" /> Chek</button>
+          {order.checks.length > 1 && <button className="tool" onClick={billAll}><Icon name="list" /> Umumiy chek</button>}
+          {canCash && <button className="tool" onClick={() => setDlg("discount")}><Icon name="percent" /> Chegirma</button>}
+          {order.type === "zal" && <button className="tool" onClick={() => setDlg("move")}><Icon name="swap" /> Ko‘chirish</button>}
+          <button className="tool" onClick={() => setDlg("customer")}><Icon name="note" /> Izoh</button>
+          <button className="tool danger" onClick={() => setDlg("cancel")}><Icon name="trash" /> Bekor</button>
         </div>
-        <button className="pay-btn" disabled={!check.lines.length || !canCash} onClick={() => setDlg("pay")}>
-          <Icon name="wallet" size={24} />
-          {canCash ? <>To‘lov · {num(t.total)} so‘m</> : "To‘lovni kassir qabul qiladi"}
-        </button>
+        <div className="big-actions">
+          <button className={`confirm ${unsent ? "hot" : ""}`} onClick={kitchen} disabled={!unsent}>
+            <Icon name="chef" size={22} /> Tasdiqlash
+          </button>
+          <button className="pay" disabled={!check.lines.length || !canCash} onClick={() => setDlg("pay")}>
+            <Icon name="wallet" size={22} /> {canCash ? "To‘lov" : "Kassirda"}
+          </button>
+        </div>
       </section>
 
       {dlg === "pay" && <PayDialog order={order} check={check} onClose={() => setDlg(null)} onDone={(r) => {
@@ -222,8 +243,28 @@ export function OrderScreen({ ctx, orderId, back }: { ctx: Ctx; orderId: string;
       {dlg === "cancel" && <CancelDialog order={order} onClose={() => setDlg(null)} />}
       {dlg === "discount" && <DiscountDialog order={order} onClose={() => setDlg(null)} />}
       {dlg === "customer" && <CustomerDialog order={order} onClose={() => setDlg(null)} />}
+      {dlg === "waiter" && (
+        <Modal title="Ofitsiantni almashtirish" onClose={() => setDlg(null)} width={440}>
+          <div className="choice-list">
+            {s.staff.filter((x) => x.active && x.role !== "admin").map((x) => (
+              <button key={x.id} className={`choice ${order.waiterId === x.id ? "on" : ""}`} onClick={() => { run(call("order:waiter", order.id, x.id), `Ofitsiant: ${x.name}`); setDlg(null); }}>
+                {x.name} <span className="muted small">{x.role === "kassir" ? "Kassir" : "Ofitsiant"}</span>
+              </button>
+            ))}
+          </div>
+        </Modal>
+      )}
+      {dlg === "type" && (
+        <Modal title="Buyurtma turi" onClose={() => setDlg(null)} width={440}>
+          <div className="choice-list">
+            <button className={`choice ${order.type === "zal" ? "on" : ""}`} onClick={() => setDlg("move")}><span><Icon name="table" /> Zalda (stol tanlash)</span></button>
+            <button className={`choice ${order.type === "olib" ? "on" : ""}`} onClick={() => { run(call("order:type", order.id, "olib"), "Olib ketishga o‘tkazildi"); setDlg(null); }}><span><Icon name="bag" /> Olib ketish</span></button>
+            <button className={`choice ${order.type === "yetkaz" ? "on" : ""}`} onClick={() => { run(call("order:type", order.id, "yetkaz"), "Yetkazib berishga o‘tkazildi"); setDlg("customer"); }}><span><Icon name="bike" /> Yetkazib berish</span></button>
+          </div>
+        </Modal>
+      )}
       {dlg && typeof dlg === "object" && "note" in dlg && (
-        <NoteDialog line={dlg.note} onClose={() => setDlg(null)} onSave={(n) => { run(call("order:note", order.id, check.id, dlg.note.id, n)); setDlg(null); }} />
+        <NoteDialog line={dlg.note} onClose={() => setDlg(null)} onSave={(n) => { run(call("order:lineNote", order.id, check.id, dlg.note.id, n)); setDlg(null); }} />
       )}
       {dlg && typeof dlg === "object" && "moveLine" in dlg && (
         <Modal title="Qaysi hisobga o‘tkazamiz?" onClose={() => setDlg(null)} width={420}>
@@ -262,47 +303,50 @@ export function ReceiptPreview({ html, onClose }: { html: string; onClose: () =>
   );
 }
 
+const METHODS: { m: PayMethod; label: string; icon: string }[] = [
+  { m: "naqd", label: "Naqd", icon: "cash" },
+  { m: "terminal", label: "Terminal (Uzcard / Humo)", icon: "wallet" },
+  { m: "qr", label: "QR kod", icon: "zoom" },
+  { m: "click", label: "Click", icon: "wallet" },
+  { m: "payme", label: "Payme", icon: "wallet" },
+];
+
 function PayDialog({ order, check, onClose, onDone }: { order: Order; check: Check; onClose: () => void; onDone: (r: { change: number; printError: string }) => void }) {
   const total = checkTotals(order, check).total;
-  const [payments, setPayments] = useState<Payment[]>([]);
-  const [method, setMethod] = useState<PayMethod>("naqd");
-  const [input, setInput] = useState(String(total));
+  const [amounts, setAmounts] = useState<Record<string, number>>({ naqd: total });
+  const [active, setActive] = useState<PayMethod>("naqd");
   const [fresh, setFresh] = useState(true);
+  const [debtor, setDebtor] = useState({ name: order.customer.name, phone: order.customer.phone, reason: "" });
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState("");
-  const paid = payments.reduce((x, p) => x + p.amount, 0);
-  const amount = Number(input) || 0;
-  const sum = paid + amount;
+  const sum = Object.values(amounts).reduce((x, v) => x + (v || 0), 0);
   const rest = Math.max(0, total - sum);
   const change = Math.max(0, sum - total);
+  const hasDebt = (amounts.qarz ?? 0) > 0;
 
+  const setAmt = (m: string, v: number) => setAmounts((a) => ({ ...a, [m]: Math.max(0, Math.min(v, 999_999_999)) }));
   const press = (k: string) => {
     setErr("");
-    if (k === "⌫") { setInput((v) => (fresh ? "" : v.slice(0, -1))); setFresh(false); return; }
-    if (k === "00") { setInput((v) => (fresh ? "" : v) + "00"); setFresh(false); return; }
-    setInput((v) => ((fresh ? "" : v) + k).replace(/^0+(?=\d)/, "").slice(0, 10));
+    const cur = fresh ? "" : String(amounts[active] || "");
+    if (k === "⌫") setAmt(active, Number(cur.slice(0, -1)) || 0);
+    else if (k === "C") setAmt(active, 0);
+    else setAmt(active, Number((cur + k).slice(0, 10)) || 0);
     setFresh(false);
   };
-
-  const pick = (m: PayMethod) => {
-    setMethod(m);
-    setInput(String(Math.max(0, total - paid)));
+  /** Qatordagi "+" — qolgan summani shu turga yozadi */
+  const fill = (m: PayMethod) => {
+    const others = Object.entries(amounts).filter(([k]) => k !== m).reduce((x, [, v]) => x + (v || 0), 0);
+    setAmt(m, Math.max(0, total - others));
+    setActive(m);
     setFresh(true);
   };
-
-  const split = () => {
-    if (!amount) return;
-    setPayments((p) => [...p, { method, amount }]);
-    setInput(String(Math.max(0, total - paid - amount)));
-    setFresh(true);
-    setMethod(method === "naqd" ? "karta" : "naqd");
-  };
+  const pick = (m: PayMethod) => { setActive(m); setFresh(true); };
 
   const finish = async () => {
-    const list = amount ? [...payments, { method, amount }] : payments;
+    const list = Object.entries(amounts).filter(([, v]) => v > 0).map(([method, amount]) => ({ method: method as PayMethod, amount }));
     setBusy(true);
     try {
-      const r = await call<{ change: number; printError: string }>("order:pay", order.id, check.id, list);
+      const r = await call<{ change: number; printError: string }>("order:pay", order.id, check.id, list, hasDebt ? debtor : undefined);
       onDone(r);
     } catch (e) {
       setErr((e as Error).message);
@@ -311,59 +355,57 @@ function PayDialog({ order, check, onClose, onDone }: { order: Order; check: Che
     }
   };
 
-  const quick = [total, Math.ceil(total / 50000) * 50000, Math.ceil(total / 100000) * 100000, Math.ceil(total / 100000) * 100000 + 100000]
-    .filter((v, i, a) => v >= total && a.indexOf(v) === i)
-    .slice(0, 4);
+  const quick = [Math.ceil(total / 10000) * 10000, Math.ceil(total / 50000) * 50000, Math.ceil(total / 100000) * 100000, Math.ceil(total / 100000) * 100000 + 100000]
+    .filter((v, i, a) => v > total && a.indexOf(v) === i)
+    .slice(0, 3);
 
   return (
-    <Modal title={`To‘lov — ${check.name}`} onClose={onClose} width={860}>
-      <div className="pay">
-        <div className="pay-left">
-          <div className="pay-total">
-            <small>To‘lanishi kerak</small>
-            <b>{num(total)} <span>so‘m</span></b>
-          </div>
-          <div className="methods">
-            {(["naqd", "karta", "click", "payme"] as PayMethod[]).map((m) => (
-              <button key={m} className={`method ${m} ${method === m ? "on" : ""}`} onClick={() => pick(m)}>
-                <Icon name={m === "naqd" ? "cash" : "wallet"} size={22} />
-                {METHOD[m]}
-              </button>
-            ))}
-          </div>
-          {payments.length > 0 && (
-            <div className="pay-list">
-              {payments.map((p, i) => (
-                <div key={i}>
-                  <span>{METHOD[p.method]}</span>
-                  <b>{num(p.amount)}</b>
-                  <button className="icon-btn ghost sm" onClick={() => setPayments((x) => x.filter((_, j) => j !== i))}><Icon name="x" size={14} /></button>
-                </div>
-              ))}
+    <Modal title={`To‘lov — ${check.name} · №${order.no}`} onClose={onClose} width={900}>
+      <div className="pay2">
+        <div>
+          <div className="pay-top">
+            <div><small>Jami</small><b>{num(total)} UZS</b></div>
+            <div className={`need ${change > 0 ? "change" : rest > 0 ? "lack" : ""}`}>
+              <small>{change > 0 ? "Qaytim" : rest > 0 ? "To‘lash kerak" : "To‘liq"}</small>
+              <b>{num(change > 0 ? change : rest)} UZS</b>
             </div>
-          )}
-          <div className="pay-sum">
-            <div><span>{METHOD[method]} summasi</span><b className="pay-input">{num(amount)}</b></div>
-            {rest > 0 && <div className="rest"><span>Yetishmaydi</span><b>{num(rest)}</b></div>}
-            {change > 0 && <div className="change"><span>Qaytim</span><b>{num(change)}</b></div>}
           </div>
-          {method === "naqd" && (
-            <div className="quick">
-              {quick.map((v) => <button key={v} onClick={() => { setInput(String(Math.max(0, v - paid))); setFresh(true); }}>{num(v)}</button>)}
+          <div className="mrows">
+            {METHODS.map((x) => (
+              <div key={x.m} role="button" className={`mrow ${active === x.m ? "on" : ""}`} onClick={() => pick(x.m)}>
+                <span className="ic"><Icon name={x.icon} size={20} /></span>
+                <b>{x.label}</b>
+                <span className={`amt ${amounts[x.m] ? "" : "zero"}`}>{num(amounts[x.m] || 0)}</span>
+                <button className="plus" onClick={(e) => { e.stopPropagation(); fill(x.m); }} title="Qolganini shu turga"><Icon name="plus" size={20} /></button>
+              </div>
+            ))}
+            <div role="button" className={`mrow qarz ${active === "qarz" ? "on" : ""}`} onClick={() => pick("qarz")}>
+              <span className="ic"><Icon name="note" size={20} /></span>
+              <b>Qarzga yozish</b>
+              <span className={`amt ${amounts.qarz ? "" : "zero"}`}>{num(amounts.qarz || 0)}</span>
+              <button className="plus" onClick={(e) => { e.stopPropagation(); fill("qarz"); }}><Icon name="plus" size={20} /></button>
+            </div>
+          </div>
+          {hasDebt && (
+            <div className="debtor">
+              <input className="input" placeholder="Mijoz ismi" value={debtor.name} onChange={(e) => setDebtor({ ...debtor, name: e.target.value })} />
+              <input className="input" placeholder="Telefon" value={debtor.phone} onChange={(e) => setDebtor({ ...debtor, phone: e.target.value })} />
+              <input className="input full" placeholder="Qarzga yozish sababi (ixtiyoriy)" value={debtor.reason} onChange={(e) => setDebtor({ ...debtor, reason: e.target.value })} />
             </div>
           )}
           {err && <div className="form-err">{err}</div>}
         </div>
         <div className="pay-right">
-          <Keypad onKey={press} extra="00" />
-          <div className="pay-buttons">
-            <button className="btn ghost" onClick={split} disabled={!amount || sum >= total}>
-              <Icon name="split" size={18} /> Aralash to‘lov
-            </button>
-            <button className="btn primary big" onClick={finish} disabled={busy || sum < total || (method !== "naqd" && change > 0 && !payments.length)}>
-              <Icon name="check" size={22} /> {busy ? "Saqlanmoqda…" : "To‘lovni yakunlash"}
-            </button>
-          </div>
+          <div className="pay-display"><span>{METHODS.find((x) => x.m === active)?.label ?? "Qarz"}</span><b>{num(amounts[active] || 0)}</b></div>
+          {active === "naqd" && quick.length > 0 && (
+            <div className="chips" style={{ margin: 0 }}>
+              {quick.map((v) => <button key={v} onClick={() => { setAmt("naqd", v - Object.entries(amounts).filter(([k]) => k !== "naqd").reduce((x, [, y]) => x + (y || 0), 0)); setFresh(true); }}>{num(v)}</button>)}
+            </div>
+          )}
+          <Keypad onKey={press} extra="C" />
+          <button className="btn success big" onClick={finish} disabled={busy || sum < total}>
+            <Icon name="check" size={22} /> {busy ? "Saqlanmoqda…" : "To‘lash"}
+          </button>
         </div>
       </div>
     </Modal>
@@ -452,24 +494,42 @@ function DiscountDialog({ order, onClose }: { order: Order; onClose: () => void 
 
 function CustomerDialog({ order, onClose }: { order: Order; onClose: () => void }) {
   const [c, setC] = useState(order.customer);
+  const [note, setNote] = useState(order.note ?? "");
+  const [field, setField] = useState<"phone" | "other">(order.type === "zal" ? "other" : "phone");
   const toast = useToast();
+  const press = (k: string) => {
+    if (k === "⌫") setC((x) => ({ ...x, phone: x.phone.slice(0, -1) }));
+    else if (k === "C") setC((x) => ({ ...x, phone: "" }));
+    else setC((x) => ({ ...x, phone: (x.phone || "+998 ") + k }));
+  };
+  const save = () =>
+    Promise.all([order.type !== "zal" ? call("order:customer", order.id, c) : null, call("order:note", order.id, note)])
+      .then(onClose)
+      .catch((e) => toast(e.message, "err"));
+  const title = order.type === "yetkaz" ? "Buyurtma yaratish — yetkazib berish" : order.type === "olib" ? "Olib ketish — mijoz" : "Buyurtmaga izoh";
   return (
-    <Modal
-      title="Mijoz ma'lumotlari"
-      onClose={onClose}
-      width={480}
-      footer={<button className="btn primary" onClick={() => call("order:customer", order.id, c).then(onClose).catch((e) => toast(e.message, "err"))}>Saqlash</button>}
-    >
-      <label className="lbl">Ismi</label>
-      <input className="input" value={c.name} onChange={(e) => setC({ ...c, name: e.target.value })} />
-      <label className="lbl">Telefon</label>
-      <input className="input" value={c.phone} onChange={(e) => setC({ ...c, phone: e.target.value })} placeholder="+998 __ ___ __ __" />
-      {order.type === "yetkaz" && (
-        <>
-          <label className="lbl">Manzil</label>
-          <textarea className="input" rows={2} value={c.address} onChange={(e) => setC({ ...c, address: e.target.value })} />
-        </>
-      )}
+    <Modal title={title} onClose={onClose} width={order.type === "zal" ? 480 : 820} footer={<button className="btn primary big" onClick={save}>Saqlash</button>}>
+      <div className={order.type === "zal" ? "" : "form-keypad"}>
+        <div>
+          {order.type !== "zal" && (
+            <>
+              <label className="lbl">Telefon raqami</label>
+              <input className={`input ${field === "phone" ? "focus" : ""}`} value={c.phone} onFocus={() => setField("phone")} onChange={(e) => setC({ ...c, phone: e.target.value })} placeholder="+998 __ ___ __ __" />
+              <label className="lbl">Mijoz ismi</label>
+              <input className="input" value={c.name} onFocus={() => setField("other")} onChange={(e) => setC({ ...c, name: e.target.value })} />
+              {order.type === "yetkaz" && (
+                <>
+                  <label className="lbl">Manzil</label>
+                  <input className="input" value={c.address} onFocus={() => setField("other")} onChange={(e) => setC({ ...c, address: e.target.value })} placeholder="Manzilni kiriting" />
+                </>
+              )}
+            </>
+          )}
+          <label className="lbl">Izoh</label>
+          <input className="input" value={note} onFocus={() => setField("other")} onChange={(e) => setNote(e.target.value)} placeholder="Masalan: 2-qavatga, tezroq" />
+        </div>
+        {order.type !== "zal" && <Keypad onKey={press} />}
+      </div>
     </Modal>
   );
 }

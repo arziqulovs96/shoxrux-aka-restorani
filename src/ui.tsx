@@ -132,4 +132,4 @@ const DAYS = ["Yakshanba", "Dushanba", "Seshanba", "Chorshanba", "Payshanba", "J
 export const longDate = (d: Date) => `${DAYS[d.getDay()]}, ${d.getDate()}-${MONTHS[d.getMonth()]}`;
 
 export const ROLE: Record<string, string> = { admin: "Admin", kassir: "Kassir", ofitsiant: "Ofitsiant" };
-export const METHOD: Record<string, string> = { naqd: "Naqd", karta: "Karta", click: "Click", payme: "Payme" };
+export { METHOD_LABEL as METHOD } from "./shared/receipt";

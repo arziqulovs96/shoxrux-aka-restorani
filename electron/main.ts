@@ -1,5 +1,6 @@
 // Do'stlik Kassa — asosiy jarayon
 import { app, BrowserWindow, dialog, ipcMain, net, protocol, shell } from "electron";
+import { spawn } from "node:child_process";
 import crypto from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
@@ -101,6 +102,7 @@ function registerIpc() {
     const s = store.get().staff.find((x) => x.id === staffId && x.active);
     if (!s || s.pin !== String(pin)) throw new L.KassaError("PIN kod noto‘g‘ri");
     actor = { id: s.id, name: s.name, role: s.role };
+    mutate((d) => L.remember(d, s.id));
     return actor;
   });
   handle("auth:logout", () => { actor = null; });
@@ -108,7 +110,7 @@ function registerIpc() {
   handle("order:open", (a: Parameters<typeof L.openOrder>[1]) => mutate((d) => L.openOrder(d, a, need())).id);
   handle("order:add", (o: string, c: string, p: string) => mutate((d) => L.addLine(d, o, c, p)));
   handle("order:qty", (o: string, c: string, l: string, delta: number) => mutate((d) => L.changeQty(d, o, c, l, delta, need())));
-  handle("order:note", (o: string, c: string, l: string, note: string) => mutate((d) => L.setNote(d, o, c, l, note)));
+  handle("order:lineNote", (o: string, c: string, l: string, note: string) => mutate((d) => L.setNote(d, o, c, l, note)));
   handle("order:addCheck", (o: string) => mutate((d) => L.addCheck(d, o)).id);
   handle("order:removeCheck", (o: string, c: string) => mutate((d) => L.removeCheck(d, o, c)));
   handle("order:moveLine", (o: string, f: string, t: string, l: string) => mutate((d) => L.moveLine(d, o, f, t, l)));
@@ -117,6 +119,18 @@ function registerIpc() {
   handle("order:customer", (o: string, c: Partial<Data["orders"][0]["customer"]>) => mutate((d) => L.setCustomer(d, o, c)));
   handle("order:moveTable", (o: string, h: string, t: number) => mutate((d) => L.moveTable(d, o, h, t)).id);
   handle("order:cancel", (o: string, reason: string) => mutate((d) => L.cancelOrder(d, o, reason, need())));
+  handle("order:waiter", (o: string, staffId: string) => {
+    const by = need();
+    const st = store.get().staff.find((x) => x.id === staffId && x.active);
+    if (!st) throw new L.KassaError("Xodim topilmadi");
+    mutate((d) => L.setWaiter(d, o, { id: st.id, name: st.name }, by));
+  });
+  handle("order:type", (o: string, t: "olib" | "yetkaz") => { need(); mutate((d) => L.setType(d, o, t)); });
+  handle("order:note", (o: string, n: string) => { need(); mutate((d) => L.setOrderNote(d, o, n)); });
+  handle("debt:pay", (id: string, method: Parameters<typeof L.payDebt>[2]) => {
+    const by = need(["admin", "kassir"]);
+    mutate((d) => L.payDebt(d, id, method, by));
+  });
   handle("order:dropIfEmpty", (o: string) => mutate((d) => L.dropIfEmpty(d, o)));
 
   handle("order:kitchen", async (orderId: string) => {
@@ -131,9 +145,9 @@ function registerIpc() {
     return { printed: false, count: items.length };
   });
 
-  handle("order:pay", async (orderId: string, checkId: string, payments: Parameters<typeof L.pay>[3]) => {
+  handle("order:pay", async (orderId: string, checkId: string, payments: Parameters<typeof L.pay>[3], debtor?: L.Debtor) => {
     const by = need(["admin", "kassir"]);
-    const r = mutate((d) => L.pay(d, orderId, checkId, payments, by));
+    const r = mutate((d) => L.pay(d, orderId, checkId, payments, by, debtor));
     const d = store.get();
     let printed = false;
     let printError = "";
@@ -289,6 +303,27 @@ function registerIpc() {
   });
 
   handle("menu:sync", () => syncMenu());
+  // Kirish ekrani foni — kirmasdan ham o‘zgartirish mumkin (Zim-Zim'dagidek)
+  handle("bg:set", (v: string) => mutate((d) => { d.settings.startBackground = String(v).slice(0, 300); }));
+  handle("bg:pick", async () => {
+    if (!win) return null;
+    const r = await dialog.showOpenDialog(win, { title: "Fon rasmini tanlang", properties: ["openFile"], filters: [{ name: "Rasm", extensions: ["jpg", "jpeg", "png", "webp"] }] });
+    if (r.canceled || !r.filePaths[0]) return null;
+    fs.mkdirSync(imagesDir(), { recursive: true });
+    const src = r.filePaths[0];
+    const name = "fon-" + crypto.createHash("sha1").update(fs.readFileSync(src)).digest("hex").slice(0, 12) + path.extname(src).toLowerCase();
+    fs.copyFileSync(src, path.join(imagesDir(), name));
+    const v = `kassa-img://r/${name}`;
+    mutate((d) => { d.settings.startBackground = v; });
+    return v;
+  });
+  handle("power", (what: "quit" | "shutdown" | "restart") => {
+    store.writeNow();
+    if (what === "quit") return app.quit();
+    if (process.platform !== "win32") return app.quit();
+    spawn("shutdown", what === "shutdown" ? ["/s", "/t", "0"] : ["/r", "/t", "0"], { detached: true, stdio: "ignore" }).unref();
+    app.quit();
+  });
   handle("update:check", () => checkUpdate());
   handle("update:install", () => installUpdate());
   handle("update:state", () => updateState());

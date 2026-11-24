@@ -2,7 +2,8 @@
 
 export type Role = "admin" | "kassir" | "ofitsiant";
 export type OrderType = "zal" | "olib" | "yetkaz";
-export type PayMethod = "naqd" | "karta" | "click" | "payme";
+/** "karta" — eski versiyadan qolgan nom (Terminal deb ko‘rsatiladi) */
+export type PayMethod = "naqd" | "terminal" | "qr" | "click" | "payme" | "qarz" | "karta";
 
 export interface Staff {
   id: string;
@@ -63,6 +64,8 @@ export interface Check {
   payments: Payment[];
   paidAt: string | null;
   total: number;
+  /** To‘lovni qabul qilgan kassir */
+  paidBy?: string;
 }
 
 export interface Order {
@@ -82,6 +85,23 @@ export interface Order {
   checks: Check[];
   customer: { name: string; phone: string; address: string };
   cancelReason: string;
+  /** Buyurtmaga izoh (masalan, "2-qavatga") */
+  note?: string;
+}
+
+export interface Debt {
+  id: string;
+  orderId: string;
+  orderNo: number;
+  amount: number;
+  customerName: string;
+  phone: string;
+  reason: string;
+  createdAt: string;
+  cashierName: string;
+  paidAt: string | null;
+  paidMethod: PayMethod | null;
+  paidBy: string;
 }
 
 export interface CashEntry {
@@ -109,6 +129,10 @@ export interface Settings {
   printKitchen: boolean;
   zoom: number;
   halls: Hall[];
+  /** Kirish ekrani foni: "photo:zal", "color:#123456", "grad:a,b" yoki rasm manzili */
+  startBackground: string;
+  /** Chek ostidagi katta yozuv (telefonlar va h.k.) */
+  receiptNote: string;
 }
 
 export interface Data {
@@ -122,6 +146,9 @@ export interface Data {
   stoplist: string[];
   orders: Order[];
   cash: CashEntry[];
+  debts: Debt[];
+  /** Oxirgi kirganlar (kirish ekranida "Yaqinda") */
+  recent: string[];
   counter: number;
 }
 

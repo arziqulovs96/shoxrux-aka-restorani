@@ -110,10 +110,10 @@ describe("to‘lov", () => {
     const d = seed();
     const o = L.openOrder(d, { type: "olib" }, waiter);
     L.addLine(d, o.id, o.checks[0].id, "p1");
-    expect(() => L.pay(d, o.id, o.checks[0].id, [{ method: "karta", amount: 40000 }], admin)).toThrow(/Karta/);
-    const r = L.pay(d, o.id, o.checks[0].id, [{ method: "karta", amount: 20000 }, { method: "naqd", amount: 20000 }], admin);
+    expect(() => L.pay(d, o.id, o.checks[0].id, [{ method: "terminal", amount: 40000 }], admin)).toThrow(/Naqdsiz/);
+    const r = L.pay(d, o.id, o.checks[0].id, [{ method: "terminal", amount: 20000 }, { method: "naqd", amount: 20000 }], admin);
     expect(r.change).toBe(5000);
-    expect(o.checks[0].payments).toEqual([{ method: "karta", amount: 20000 }, { method: "naqd", amount: 15000 }]);
+    expect(o.checks[0].payments).toEqual([{ method: "terminal", amount: 20000 }, { method: "naqd", amount: 15000 }]);
   });
 
   it("alohida hisoblar: birinchisi to‘langanda stol ochiq qoladi, hammasi to‘langanda yopiladi", () => {
@@ -127,6 +127,42 @@ describe("to‘lov", () => {
     expect(L.orderTotals(o).total).toBe(60000);
     L.pay(d, o.id, c2.id, [{ method: "click", amount: 25000 }], admin);
     expect(o.status).toBe("paid");
+  });
+});
+
+describe("qarz", () => {
+  it("qarzga yozish mijozsiz bo‘lmaydi; qarz keyin to‘lanadi va kassaga tushadi", () => {
+    const d = seed();
+    const o = L.openOrder(d, { type: "olib" }, waiter);
+    L.addLine(d, o.id, o.checks[0].id, "p1"); // 35 000
+    expect(() => L.pay(d, o.id, o.checks[0].id, [{ method: "qarz", amount: 35000 }], admin)).toThrow(/mijoz/);
+    expect(() => L.pay(d, o.id, o.checks[0].id, [{ method: "qarz", amount: 40000 }], admin, { name: "Ali", phone: "", reason: "" })).toThrow();
+    L.pay(d, o.id, o.checks[0].id, [{ method: "naqd", amount: 15000 }, { method: "qarz", amount: 20000 }], admin, { name: "Ali aka", phone: "+998901234567", reason: "ertaga" });
+    expect(o.status).toBe("paid");
+    expect(d.debts).toHaveLength(1);
+    expect(d.debts[0]).toMatchObject({ amount: 20000, customerName: "Ali aka", paidAt: null });
+    const day = new Date(); day.setHours(0, 0, 0, 0);
+    const end = new Date(day.getTime() + 86400_000);
+    expect(L.report(d, day, end).debtNew).toBe(20000);
+    expect(L.report(d, day, end).cashInDrawer).toBe(15000);
+    expect(() => L.payDebt(d, d.debts[0].id, "naqd", waiter)).toThrow();
+    L.payDebt(d, d.debts[0].id, "naqd", admin);
+    expect(() => L.payDebt(d, d.debts[0].id, "naqd", admin)).toThrow(/allaqachon/);
+    const r = L.report(d, day, end);
+    expect(r.debtPaid).toEqual({ naqd: 20000 });
+    expect(r.cashInDrawer).toBe(35000);
+  });
+
+  it("ofitsiant almashtirish, tur almashtirish, yaqinda kirganlar", () => {
+    const d = seed();
+    const o = L.openOrder(d, { type: "zal", hallId: "zal", table: 4 }, waiter);
+    expect(() => L.setWaiter(d, o.id, { id: "w2", name: "Jasur" }, waiter)).toThrow();
+    L.setWaiter(d, o.id, { id: "w2", name: "Jasur" }, admin);
+    expect(o.waiterName).toBe("Jasur");
+    L.setType(d, o.id, "olib");
+    expect([o.type, o.table]).toEqual(["olib", null]);
+    L.remember(d, "a"); L.remember(d, "b"); L.remember(d, "a");
+    expect(d.recent).toEqual(["a", "b"]);
   });
 });
 
@@ -165,13 +201,16 @@ describe("hisobot va chek", () => {
     const d = seed();
     const o = L.openOrder(d, { type: "zal", hallId: "zal", table: 1 }, waiter);
     L.addLine(d, o.id, o.checks[0].id, "p1", 2);
-    L.pay(d, o.id, o.checks[0].id, [{ method: "karta", amount: 70000 }], admin);
+    L.pay(d, o.id, o.checks[0].id, [{ method: "karta", amount: 70000 }], admin); // eski nom → terminal
     L.addCash(d, { type: "chiqim", amount: 10000, note: "Non", staffName: "Admin" });
     L.addCash(d, { type: "kirim", amount: 50000, note: "Qoldiq", staffName: "Admin" });
     const day = new Date(); day.setHours(0, 0, 0, 0);
     const r = L.report(d, day, new Date(day.getTime() + 86400_000));
     expect(r.revenue).toBe(70000);
-    expect(r.byMethod).toEqual({ karta: 70000 });
+    expect(r.byMethod).toEqual({ terminal: 70000 });
+    expect(r.byCashier).toEqual([{ name: "Admin", checks: 1, sum: 70000, byMethod: { terminal: 70000 } }]);
+    expect(r.byType.zal).toEqual({ count: 1, sum: 70000 });
+    expect(r.transactions).toHaveLength(3);
     expect(r.byWaiter).toEqual([{ name: "Shoxrux", orders: 1, sum: 70000 }]);
     expect(r.products).toEqual([{ name: "Sezar", qty: 2, sum: 70000 }]);
     expect(r.cashInDrawer).toBe(40000);
@@ -185,7 +224,11 @@ describe("hisobot va chek", () => {
     const html = receiptHtml(d, o, o.checks, false);
     expect(html).toContain("Sezar");
     expect(html).toContain("35 000");
-    expect(html).toContain("3-stol");
+    expect(html).toContain("ZAL · 3");
+    expect(html).toContain("Jami:");
+    expect(html).toContain("width: 100%"); // qog‘oz kengligiga moslashadi — kesilmaydi
+    const d58 = { settings: { ...d.settings, paperWidth: 58 as const, receiptNote: "+998 99 436 78 75" } };
+    expect(receiptHtml(d58, o, o.checks, false)).toContain("+998 99 436 78 75");
     const k = kitchenHtml(d, o, [{ name: "Sezar", qty: 1, note: "Achchiq" }]);
     expect(k).toContain("3-STOL");
     expect(k).not.toContain("35 000");
