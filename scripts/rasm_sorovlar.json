@@ -1,0 +1,552 @@
+{
+ "Salat": [
+  {
+   "id": "zz-salat-1",
+   "name": "Sezar",
+   "q": [
+    "caesar salad",
+    "caesar salad chicken"
+   ]
+  },
+  {
+   "id": "zz-salat-2",
+   "name": "Zagadka",
+   "q": [
+    "fried eggplant salad",
+    "crispy eggplant salad"
+   ]
+  },
+  {
+   "id": "zz-salat-3",
+   "name": "Majnuntol",
+   "q": [
+    "salad with crispy potato straws",
+    "meat salad mayonnaise"
+   ]
+  },
+  {
+   "id": "zz-salat-4",
+   "name": "Smak",
+   "q": [
+    "chicken salad",
+    "salad beef vegetables"
+   ]
+  },
+  {
+   "id": "zz-salat-5",
+   "name": "Yaponcha",
+   "q": [
+    "japanese salad",
+    "seaweed salad"
+   ]
+  },
+  {
+   "id": "zz-salat-6",
+   "name": "Aziya",
+   "q": [
+    "asian salad",
+    "asian beef salad"
+   ]
+  },
+  {
+   "id": "zz-salat-7",
+   "name": "Oliviya",
+   "q": [
+    "olivier salad",
+    "russian salad olivier"
+   ]
+  },
+  {
+   "id": "zz-salat-8",
+   "name": "Kapriz",
+   "q": [
+    "layered salad",
+    "vegetable salad mayonnaise"
+   ]
+  },
+  {
+   "id": "zz-salat-9",
+   "name": "Fransuzcha salat",
+   "q": [
+    "french salad",
+    "salad carrot cheese"
+   ]
+  }
+ ],
+ "Birinchi taom": [
+  {
+   "id": "zz-birinchi-2",
+   "name": "Borsh",
+   "q": [
+    "borscht",
+    "borscht soup"
+   ]
+  },
+  {
+   "id": "zz-birinchi-3",
+   "name": "Tiftel sho‘rva",
+   "q": [
+    "meatball soup",
+    "soup with meatballs"
+   ]
+  },
+  {
+   "id": "zz-birinchi-5",
+   "name": "Grechka",
+   "q": [
+    "buckwheat with meat",
+    "buckwheat porridge meat"
+   ]
+  },
+  {
+   "id": "zz-birinchi-6",
+   "name": "Olibqochar",
+   "q": [
+    "meat stew potatoes",
+    "beef stew vegetables"
+   ]
+  },
+  {
+   "id": "zz-birinchi-7",
+   "name": "Sho‘rva",
+   "q": [
+    "shurpa",
+    "shorpa soup"
+   ]
+  },
+  {
+   "id": "zz-birinchi-8",
+   "name": "Kalla pocha",
+   "q": [
+    "khash soup",
+    "lamb head soup"
+   ]
+  },
+  {
+   "id": "zz-birinchi-9",
+   "name": "Qo‘y sho‘rva",
+   "q": [
+    "lamb soup",
+    "shurpa lamb"
+   ]
+  },
+  {
+   "id": "zz-birinchi-10",
+   "name": "Kalla pocha 100 g",
+   "q": [
+    "khash",
+    "boiled lamb head meat"
+   ]
+  }
+ ],
+ "Asosiy taomlar": [
+  {
+   "id": "zz-asosiy-9",
+   "name": "Koreyka (qo‘y biqinchasi)",
+   "q": [
+    "lamb ribs grilled",
+    "grilled lamb chops"
+   ]
+  },
+  {
+   "id": "zz-asosiy-11",
+   "name": "Kartoshka fri",
+   "q": [
+    "french fries",
+    "french fries plate"
+   ]
+  }
+ ],
+ "Shashlik": [
+  {
+   "id": "zz-shashlik-5",
+   "name": "Jigar shashlik",
+   "q": [
+    "liver shashlik",
+    "grilled liver skewers"
+   ]
+  }
+ ],
+ "Maxsus taomlar": [
+  {
+   "id": "zz-maxsus-1",
+   "name": "Moloti + Buxanka",
+   "q": [
+    "lyulya kebab",
+    "kebab with bread"
+   ]
+  }
+ ],
+ "Asosiy salat": [
+  {
+   "id": "zz-asosiy-salat-1",
+   "name": "Pamidor salat",
+   "q": [
+    "tomato salad",
+    "tomato onion salad"
+   ]
+  },
+  {
+   "id": "zz-asosiy-salat-2",
+   "name": "Pamidor salat (katta)",
+   "q": [
+    "tomato cucumber salad",
+    "tomato salad bowl"
+   ]
+  },
+  {
+   "id": "zz-asosiy-salat-3",
+   "name": "Chiroqchi salat",
+   "q": [
+    "achichuk salad",
+    "tomato onion salad uzbek"
+   ]
+  },
+  {
+   "id": "zz-asosiy-salat-4",
+   "name": "Qatiq",
+   "q": [
+    "yogurt bowl",
+    "katyk yogurt"
+   ]
+  },
+  {
+   "id": "zz-asosiy-salat-5",
+   "name": "Non",
+   "q": [
+    "uzbek bread",
+    "uzbek non bread"
+   ]
+  },
+  {
+   "id": "zz-asosiy-salat-6",
+   "name": "Bo‘lka",
+   "q": [
+    "bread loaf",
+    "white bread loaf"
+   ]
+  },
+  {
+   "id": "zz-asosiy-salat-8",
+   "name": "Limon choy",
+   "q": [
+    "lemon tea",
+    "tea with lemon"
+   ]
+  },
+  {
+   "id": "zz-asosiy-salat-9",
+   "name": "Non 0.5",
+   "q": [
+    "uzbek flatbread",
+    "lepyoshka"
+   ]
+  },
+  {
+   "id": "zz-asosiy-salat-10",
+   "name": "Bo‘lka 0.5",
+   "q": [
+    "sliced bread",
+    "bread slices"
+   ]
+  },
+  {
+   "id": "zz-asosiy-salat-11",
+   "name": "Turk choy",
+   "q": [
+    "turkish tea",
+    "turkish tea glass"
+   ]
+  },
+  {
+   "id": "zz-asosiy-salat-12",
+   "name": "Bir kishilik salat",
+   "q": [
+    "fresh vegetable salad",
+    "cucumber tomato salad"
+   ]
+  },
+  {
+   "id": "zz-asosiy-salat-13",
+   "name": "Somsa 10 000",
+   "q": [
+    "samsa",
+    "uzbek samsa"
+   ]
+  },
+  {
+   "id": "zz-asosiy-salat-14",
+   "name": "Somsa 15 000",
+   "q": [
+    "samsa tandoor",
+    "baked samsa"
+   ]
+  },
+  {
+   "id": "zz-asosiy-salat-15",
+   "name": "Shashlik kombo set (4 kishilik)",
+   "q": [
+    "shashlik platter",
+    "mixed kebab platter"
+   ]
+  },
+  {
+   "id": "zz-asosiy-salat-16",
+   "name": "Xalades",
+   "q": [
+    "kholodets",
+    "aspic meat jelly"
+   ]
+  },
+  {
+   "id": "zz-asosiy-salat-17",
+   "name": "Salonni karam",
+   "q": [
+    "coleslaw",
+    "cabbage salad"
+   ]
+  },
+  {
+   "id": "zz-asosiy-salat-18",
+   "name": "Meva assorti",
+   "q": [
+    "fruit platter",
+    "fruit plate assorted"
+   ]
+  },
+  {
+   "id": "zz-asosiy-salat-19",
+   "name": "Karam salat katta",
+   "q": [
+    "cabbage salad",
+    "fresh cabbage salad"
+   ]
+  },
+  {
+   "id": "zz-asosiy-salat-22",
+   "name": "Limon",
+   "q": [
+    "sliced lemon",
+    "lemon slices plate"
+   ]
+  },
+  {
+   "id": "zz-asosiy-salat-23",
+   "name": "Desert",
+   "q": [
+    "cake slice",
+    "chocolate cake slice"
+   ]
+  },
+  {
+   "id": "zz-asosiy-salat-24",
+   "name": "Pista 10",
+   "q": [
+    "pistachios",
+    "pistachio nuts bowl"
+   ]
+  }
+ ],
+ "Ichimliklar": [
+  {
+   "id": "zz-ichimlik-1",
+   "name": "Gazli suv 0.5",
+   "q": [
+    "sparkling water bottle",
+    "mineral water bottle"
+   ]
+  },
+  {
+   "id": "zz-ichimlik-2",
+   "name": "Cola 0.5",
+   "q": [
+    "coca-cola bottle",
+    "coca cola plastic bottle"
+   ]
+  },
+  {
+   "id": "zz-ichimlik-3",
+   "name": "Cola 1 l",
+   "q": [
+    "coca-cola bottle",
+    "coca cola 1 liter"
+   ]
+  },
+  {
+   "id": "zz-ichimlik-4",
+   "name": "7UP",
+   "q": [
+    "7up bottle",
+    "7 up soda"
+   ]
+  },
+  {
+   "id": "zz-ichimlik-5",
+   "name": "Cola 2 l",
+   "q": [
+    "coca-cola 2 liter bottle",
+    "coca cola large bottle"
+   ]
+  },
+  {
+   "id": "zz-ichimlik-6",
+   "name": "Sochnaya Dolina",
+   "q": [
+    "juice carton",
+    "orange juice carton"
+   ]
+  },
+  {
+   "id": "zz-ichimlik-7",
+   "name": "Fuse tea 1.5",
+   "q": [
+    "fuze tea bottle",
+    "iced tea bottle"
+   ]
+  },
+  {
+   "id": "zz-ichimlik-8",
+   "name": "Fuse tea 1 l",
+   "q": [
+    "fuze tea",
+    "iced tea bottle"
+   ]
+  },
+  {
+   "id": "zz-ichimlik-9",
+   "name": "Colacha butilka",
+   "q": [
+    "coca-cola glass bottle",
+    "coke glass bottle"
+   ]
+  },
+  {
+   "id": "zz-ichimlik-10",
+   "name": "Suv 1 l",
+   "q": [
+    "water bottle",
+    "drinking water bottle"
+   ]
+  },
+  {
+   "id": "zz-ichimlik-11",
+   "name": "Obi Hayot",
+   "q": [
+    "mineral water bottle",
+    "water bottle glass"
+   ]
+  },
+  {
+   "id": "zz-ichimlik-12",
+   "name": "Fuse tea banka",
+   "q": [
+    "iced tea can",
+    "fuze tea can"
+   ]
+  },
+  {
+   "id": "zz-ichimlik-13",
+   "name": "Sting banka",
+   "q": [
+    "sting energy drink",
+    "energy drink can"
+   ]
+  },
+  {
+   "id": "zz-ichimlik-14",
+   "name": "Adrenalin",
+   "q": [
+    "adrenaline rush energy drink",
+    "energy drink can"
+   ]
+  },
+  {
+   "id": "zz-ichimlik-15",
+   "name": "Adrenalin katta",
+   "q": [
+    "adrenaline rush can",
+    "energy drink can"
+   ]
+  },
+  {
+   "id": "zz-ichimlik-16",
+   "name": "Rockstar",
+   "q": [
+    "rockstar energy drink",
+    "rockstar energy can"
+   ]
+  },
+  {
+   "id": "zz-ichimlik-17",
+   "name": "Pepsi 0.5",
+   "q": [
+    "pepsi bottle",
+    "pepsi plastic bottle"
+   ]
+  },
+  {
+   "id": "zz-ichimlik-18",
+   "name": "Suv 0.5",
+   "q": [
+    "small water bottle",
+    "water bottle 0.5"
+   ]
+  },
+  {
+   "id": "zz-ichimlik-19",
+   "name": "Lipton 1 l",
+   "q": [
+    "lipton ice tea",
+    "lipton iced tea bottle"
+   ]
+  },
+  {
+   "id": "zz-ichimlik-20",
+   "name": "Pepsi 1 l",
+   "q": [
+    "pepsi bottle",
+    "pepsi cola bottle"
+   ]
+  },
+  {
+   "id": "zz-ichimlik-21",
+   "name": "Pepsi 1.5",
+   "q": [
+    "pepsi bottle",
+    "pepsi 1.5 liter"
+   ]
+  },
+  {
+   "id": "zz-ichimlik-22",
+   "name": "Pepsi 2 l",
+   "q": [
+    "pepsi 2 liter",
+    "pepsi large bottle"
+   ]
+  },
+  {
+   "id": "zz-ichimlik-23",
+   "name": "Fanta 1.5",
+   "q": [
+    "fanta orange bottle",
+    "fanta bottle"
+   ]
+  },
+  {
+   "id": "zz-ichimlik-24",
+   "name": "Fanta 1 l",
+   "q": [
+    "fanta bottle",
+    "fanta orange"
+   ]
+  },
+  {
+   "id": "zz-ichimlik-25",
+   "name": "Kola 1.5",
+   "q": [
+    "coca-cola bottle",
+    "coca cola 1.5 liter"
+   ]
+  }
+ ]
+}

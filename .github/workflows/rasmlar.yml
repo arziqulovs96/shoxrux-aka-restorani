@@ -1,0 +1,16 @@
+name: Menyu rasmlarini qidirish
+on: workflow_dispatch
+jobs:
+  search:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.12" }
+      - run: pip install pillow
+      - run: python scripts/rasm_qidirish.py
+      - uses: actions/upload-artifact@v4
+        with:
+          name: nomzodlar
+          path: nomzodlar
+          retention-days: 3
