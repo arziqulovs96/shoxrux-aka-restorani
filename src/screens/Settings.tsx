@@ -46,7 +46,7 @@ function useSave() {
 function General({ ctx }: { ctx: Ctx }) {
   const st = ctx.s.settings;
   const save = useSave();
-  const [f, setF] = useState({ restaurantName: st.restaurantName, address: st.address, phone: st.phone, receiptFooter: st.receiptFooter, receiptNote: st.receiptNote, serviceRate: st.serviceRate, serviceOnTakeaway: st.serviceOnTakeaway, apiUrl: st.apiUrl });
+  const [f, setF] = useState({ restaurantName: st.restaurantName, address: st.address, phone: st.phone, receiptFooter: st.receiptFooter, receiptNote: st.receiptNote, serviceRate: st.serviceRate, serviceOnTakeaway: st.serviceOnTakeaway, apiUrl: st.apiUrl, siteSync: st.siteSync });
   return (
     <div className="card form">
       <h2>Umumiy sozlamalar</h2>
@@ -58,9 +58,10 @@ function General({ ctx }: { ctx: Ctx }) {
         <label className="full"><span className="lbl">Chekdagi qo‘shimcha yozuv (telefonlar va h.k.)</span><input className="input" value={f.receiptNote} onChange={(e) => setF({ ...f, receiptNote: e.target.value })} placeholder="Bizda xizmat haqi yo‘q +998 __ ___ __ __" /></label>
         <label><span className="lbl">Xizmat haqi, %</span><input className="input" type="number" min={0} max={50} value={f.serviceRate} onChange={(e) => setF({ ...f, serviceRate: Number(e.target.value) })} /></label>
         <label className="check-row"><input type="checkbox" checked={f.serviceOnTakeaway} onChange={(e) => setF({ ...f, serviceOnTakeaway: e.target.checked })} /> Olib ketish va yetkazishda ham xizmat haqi olinsin</label>
-        <label className="full"><span className="lbl">Sayt manzili (menyu shu yerdan olinadi)</span><input className="input" value={f.apiUrl} onChange={(e) => setF({ ...f, apiUrl: e.target.value })} /></label>
+        <label className="check-row full"><input type="checkbox" checked={f.siteSync} onChange={(e) => setF({ ...f, siteSync: e.target.checked })} /> Menyuni saytdan ham olish (odatda o‘chiq — menyu faqat kassada)</label>
+        <label className="full"><span className="lbl">Sayt manzili</span><input className="input" value={f.apiUrl} onChange={(e) => setF({ ...f, apiUrl: e.target.value })} /></label>
       </div>
-      <p className="muted small">Taom va narxlar sayt admin panelidan keladi (har 5 daqiqada yangilanadi). Saytda yo‘q mahsulotlarni “Mahsulotlar” bo‘limidan qo‘shing.</p>
+      <p className="muted small">Taom va narxlar Sozlamalar → Mahsulotlar bo‘limida.</p>
       <div className="form-foot"><button className="btn primary" onClick={() => save(f)}>Saqlash</button></div>
     </div>
   );
@@ -164,7 +165,7 @@ function Products({ ctx }: { ctx: Ctx }) {
   const { categories, products } = useMemo(() => menu(s), [s.site, s.local, s.priceOverrides]);
   const [edit, setEdit] = useState<(Partial<Product> & { categoryId: string; name: string; price: number }) | null>(null);
   const [price, setPrice] = useState<{ p: Product; v: string } | null>(null);
-  const [cat, setCat] = useState<{ id?: string; name: string } | null>(null);
+  const [cat, setCat] = useState<{ id?: string; name: string; print?: "none" | "shashlik" | "kitchen" } | null>(null);
   const [q, setQ] = useState("");
   const run = (p: Promise<unknown>, ok: string, after?: () => void) => p.then(() => { toast(ok); after?.(); }).catch((e) => toast(e.message, "err"));
   const pick = () => call<string | null>("image:pick").then((img) => img && edit && setEdit({ ...edit, image: img }));
@@ -178,10 +179,7 @@ function Products({ ctx }: { ctx: Ctx }) {
           <button className="btn primary" onClick={() => setEdit({ categoryId: categories[0]?.id ?? "", name: "", price: 0, image: null, unit: "" })} disabled={!categories.length}><Icon name="plus" size={18} /> Mahsulot qo‘shish</button>
         </div>
       </div>
-      <p className="muted small">
-        <span className="src site">Sayt</span> belgili taomlar sayt admin panelidan keladi — ularni o‘sha yerda tahrirlang (bu yerda faqat kassa narxini alohida qo‘yish mumkin).{" "}
-        <span className="src local">Kassa</span> belgililar faqat kassada (masalan, ichimliklar, non).
-      </p>
+      <p className="muted small">Menyu faqat kassada. Taom nomi, narxi yoki rasmini o‘zgartirish uchun "Tahrirlash"ni bosing. Bo‘lim yonidagi ✎ belgisi orqali uning cheki qayerdan chiqishini tanlaysiz (masalan, Shashlik → Shashlikxona).</p>
       <div className="search sm"><Icon name="search" size={18} /><input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Qidirish" /></div>
       {categories.map((c) => {
         const list = products.filter((p) => p.categoryId === c.id && (!q || p.name.toLowerCase().includes(q.toLowerCase())));
@@ -189,10 +187,12 @@ function Products({ ctx }: { ctx: Ctx }) {
         return (
           <section key={c.id} className="prod-sec">
             <h3>
-              {c.name} <span className={`src ${c.source}`}>{c.source === "site" ? "Sayt" : "Kassa"}</span>
+              {c.name} {c.source === "site" && <span className="src site">Sayt</span>}
+              {c.print === "shashlik" && <span className="src local">→ Shashlikxona</span>}
+              {c.print === "kitchen" && <span className="src local">→ Oshxona</span>}
               {c.source === "local" && (
                 <>
-                  <button className="icon-btn ghost sm" onClick={() => setCat({ id: c.id, name: c.name })}><Icon name="note" size={15} /></button>
+                  <button className="icon-btn ghost sm" onClick={() => setCat({ id: c.id, name: c.name, print: c.print ?? "none" })}><Icon name="note" size={15} /></button>
                   <button className="icon-btn ghost sm" onClick={() => run(call("local:deleteCategory", c.id), "Bo‘lim o‘chirildi")}><Icon name="trash" size={15} /></button>
                 </>
               )}
@@ -220,6 +220,12 @@ function Products({ ctx }: { ctx: Ctx }) {
         <Modal title={cat.id ? "Bo‘lim nomi" : "Yangi bo‘lim (faqat kassada)"} onClose={() => setCat(null)} width={420}
           footer={<button className="btn primary" onClick={() => run(call("local:saveCategory", cat), "Saqlandi", () => setCat(null))}>Saqlash</button>}>
           <input className="input" autoFocus value={cat.name} onChange={(e) => setCat({ ...cat, name: e.target.value })} placeholder="Masalan: Ichimliklar" />
+          <label className="lbl">"Tasdiqlash"da chek qayerdan chiqsin</label>
+          <div className="seg">
+            {([["none", "Hech qayerda"], ["shashlik", "Shashlikxona"], ["kitchen", "Oshxona"]] as const).map(([v, l]) => (
+              <button key={v} className={(cat.print ?? "none") === v ? "on" : ""} onClick={() => setCat({ ...cat, print: v })}>{l}</button>
+            ))}
+          </div>
         </Modal>
       )}
       {price && (
@@ -273,8 +279,8 @@ function Printers({ ctx }: { ctx: Ctx }) {
   const [list, setList] = useState<PrinterInfo[] | null>(null);
   const load = () => call<PrinterInfo[]>("printers:list").then(setList).catch(() => setList([]));
   useEffect(() => { load(); }, []);
-  const test = (w: "receipt" | "kitchen") => call("print:test", w).then(() => toast("Sinov cheki yuborildi")).catch((e) => toast(e.message, "err"));
-  const Sel = ({ value, field }: { value: string; field: "receiptPrinter" | "kitchenPrinter" }) => (
+  const test = (w: "receipt" | "kitchen" | "shashlik") => call("print:test", w).then(() => toast("Sinov cheki yuborildi")).catch((e) => toast(e.message, "err"));
+  const Sel = ({ value, field }: { value: string; field: "receiptPrinter" | "kitchenPrinter" | "shashlikPrinter" }) => (
     <select className="input" value={value} onChange={(e) => save({ [field]: e.target.value })}>
       <option value="">— Tanlanmagan —</option>
       {list?.map((p) => <option key={p.name} value={p.name}>{p.displayName}{p.isDefault ? " (asosiy)" : ""}</option>)}
@@ -293,6 +299,12 @@ function Printers({ ctx }: { ctx: Ctx }) {
         <Sel value={st.receiptPrinter} field="receiptPrinter" />
         <label className="check-row"><input type="checkbox" checked={st.printOnPay} onChange={(e) => save({ printOnPay: e.target.checked })} /> To‘lovdan keyin chek avtomatik chiqsin</label>
         <button className="btn sm" onClick={() => test("receipt")} disabled={!st.receiptPrinter}>Sinov cheki</button>
+      </div>
+      <div className="printer-box">
+        <div className="printer-head"><Icon name="chef" /> <b>Shashlikxona printeri</b></div>
+        <Sel value={st.shashlikPrinter} field="shashlikPrinter" />
+        <p className="muted small">"Tasdiqlash" bosilganda faqat Shashlik bo‘limidagi taomlar cheki shu yerdan chiqadi (Sozlamalar → Mahsulotlar → bo‘lim ✎).</p>
+        <button className="btn sm" onClick={() => test("shashlik")} disabled={!st.shashlikPrinter}>Sinov cheki</button>
       </div>
       <div className="printer-box">
         <div className="printer-head"><Icon name="chef" /> <b>Oshxona printeri</b></div>
@@ -330,8 +342,31 @@ function UpdateTab({ ctx, upd, onUpdate }: { ctx: Ctx; upd: UpdateState; onUpdat
       <p className="muted small">Barcha buyurtmalar shu kompyuterda saqlanadi, har kuni zaxira nusxa olinadi (oxirgi 30 kun). Menyu oxirgi marta: {ctx.s.site.syncedAt ? hhmm(ctx.s.site.syncedAt) : "—"}.</p>
       <div className="row-gap">
         <button className="btn ghost" onClick={() => call("app:openData")}><Icon name="folder" size={18} /> Ma'lumotlar papkasini ochish</button>
+        <ClearButton />
         <button className="btn ghost danger" onClick={() => call("app:quit")}><Icon name="power" size={18} /> Dasturdan chiqish</button>
       </div>
     </div>
+  );
+}
+
+function ClearButton() {
+  const toast = useToast();
+  const [ask, setAsk] = useState(false);
+  return (
+    <>
+      <button className="btn ghost danger" onClick={() => setAsk(true)}><Icon name="trash" size={18} /> Kassani tozalash</button>
+      {ask && (
+        <Modal title="Kassani tozalash" onClose={() => setAsk(false)} width={460}
+          footer={
+            <>
+              <button className="btn ghost" onClick={() => setAsk(false)}>Yo‘q</button>
+              <button className="btn danger" onClick={() => call("data:clear").then(() => { toast("Kassa tozalandi"); setAsk(false); }).catch((e) => toast(e.message, "err"))}>Ha, tozalash</button>
+            </>
+          }>
+          <p>Barcha buyurtmalar, to‘lovlar, kirim/chiqim, qarzlar va hisobotlar o‘chiriladi, buyurtma raqami 1 dan boshlanadi.</p>
+          <p className="muted small" style={{ marginTop: 8 }}>Menyu, xodimlar va sozlamalar qoladi. Bu amalni qaytarib bo‘lmaydi (faqat kunlik zaxira nusxadan).</p>
+        </Modal>
+      )}
+    </>
   );
 }

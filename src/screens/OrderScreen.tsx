@@ -71,9 +71,10 @@ export function OrderScreen({ ctx, orderId, back }: { ctx: Ctx; orderId: string;
 
   const kitchen = () =>
     run(
-      call<{ printed: boolean; count: number }>("order:kitchen", order.id).then((r) => {
-        if (!r.count) toast("Yangi taom yo‘q — hammasi yuborilgan", "info");
-        else toast(r.printed ? `Tasdiqlandi va oshxonaga chop etildi (${r.count})` : `Tasdiqlandi — oshxonaga yuborildi (${r.count} ta)`);
+      call<{ printed: string[]; count: number; errors: string[] }>("order:kitchen", order.id).then((r) => {
+        if (!r.count) toast("Yangi taom yo‘q — hammasi tasdiqlangan", "info");
+        else toast(r.printed.length ? `Tasdiqlandi ✓ Chek: ${r.printed.join(", ")}` : `Tasdiqlandi ✓ (${r.count} ta)`);
+        for (const e of r.errors) toast(`Chop etilmadi — ${e}`, "err");
       }),
     );
 

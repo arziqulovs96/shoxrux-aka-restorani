@@ -97,11 +97,11 @@ export function receiptHtml(d: D, o: Order, checks: Check[], final: boolean, cha
 }
 
 /** Oshxona cheki — faqat yangi qo‘shilgan taomlar, narxsiz, katta harf */
-export function kitchenHtml(d: D, o: Order, items: { name: string; qty: number; note: string }[]) {
+export function kitchenHtml(d: D, o: Order, items: { name: string; qty: number; note: string }[], station = "OSHXONA") {
   const where = o.type === "zal"
     ? `${esc(d.settings.halls.find((h) => h.id === o.hallId)?.name ?? "")} · ${o.table}-STOL`
     : TYPE[o.type].toUpperCase();
-  let body = `<div class="c big">${where}</div><div class="c">№${o.no} · ${esc(o.waiterName)} · ${dt(new Date().toISOString())}</div>`;
+  let body = `<div class="c b">${esc(station)}</div><div class="c big">${where}</div><div class="c">№${o.no} · ${esc(o.waiterName)} · ${dt(new Date().toISOString())}</div>`;
   if (o.note) body += `<div class="c b">${esc(o.note)}</div>`;
   body += "<hr>";
   for (const i of items) {

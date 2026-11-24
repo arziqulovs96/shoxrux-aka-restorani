@@ -25,6 +25,8 @@ export interface Category {
   sortOrder: number;
   /** "site" — sayt admin panelidan; "local" — faqat kassada qo‘shilgan */
   source: "site" | "local";
+  /** "Tasdiqlash"da qayerga chek chiqadi: hech qayerga / shashlikxona / oshxona */
+  print?: "none" | "shashlik" | "kitchen";
 }
 
 export interface Product {
@@ -133,6 +135,10 @@ export interface Settings {
   startBackground: string;
   /** Chek ostidagi katta yozuv (telefonlar va h.k.) */
   receiptNote: string;
+  /** Shashlikxona printeri */
+  shashlikPrinter: string;
+  /** Menyuni saytdan olish (o‘chiq — menyu faqat kassada) */
+  siteSync: boolean;
 }
 
 export interface Data {
@@ -150,6 +156,8 @@ export interface Data {
   /** Oxirgi kirganlar (kirish ekranida "Yaqinda") */
   recent: string[];
   counter: number;
+  /** Qaysi standart menyu o‘rnatilgan (Zim-Zim menyusi) */
+  menuSeed?: number;
 }
 
 /** Oynaga yuboriladigan holat (PIN kodlarsiz) */

@@ -156,7 +156,7 @@ function TopBar({ ctx, tab, counts, onLock, updateBadge, upd, onUpdate }: {
     { icon: "ban", label: "Stop-list", act: () => go({ name: "stoplist" }), roles: ["admin", "kassir"] },
     { icon: "cash", label: "Kirim / Chiqim", act: () => go({ name: "cash" }), roles: ["admin", "kassir"] },
     { icon: "wallet", label: `Qarzlar${debtCount ? ` (${debtCount})` : ""}`, act: () => go({ name: "debts" }), roles: ["admin", "kassir"] },
-    { icon: "sync", label: "Sinxronlash (menyu)", act: sync },
+    ...(s.settings.siteSync ? [{ icon: "sync", label: "Sinxronlash (menyu)", act: sync }] : []),
     { icon: "gear", label: "Sozlamalar", act: () => go({ name: "settings" }), roles: ["admin"] },
     { icon: "fullscreen", label: "To‘liq ekran (F11)", act: () => call("app:fullscreen") },
   ];
@@ -187,7 +187,7 @@ function TopBar({ ctx, tab, counts, onLock, updateBadge, upd, onUpdate }: {
           </button>
         )}
         <div className="clock">{hhmm(now)}</div>
-        <button className="icon-btn" onClick={sync} title="Menyuni yangilash"><Icon name="sync" className={spin ? "spin" : ""} /></button>
+        {s.settings.siteSync && <button className="icon-btn" onClick={sync} title="Menyuni yangilash"><Icon name="sync" className={spin ? "spin" : ""} /></button>}
         <button className="icon-btn" onClick={onLock} title="Qulflash"><Icon name="lock" /></button>
         <div className="me-wrap">
           <button className="me" onClick={() => setMenuOpen((v) => !v)}>
@@ -258,7 +258,7 @@ function StatusBar({ s }: { s: PublicState }) {
   return (
     <footer className="statusbar">
       <span className={`net ${online ? "on" : "off"}`}><Icon name={online ? "wifi" : "wifiOff"} size={14} /> {online ? "Onlayn" : "Oflayn — ish davom etadi"}</span>
-      <span>{s.site.syncedAt ? `Menyu: ${hhmm(s.site.syncedAt)}` : "Menyu hali yuklanmagan"}{s.site.error ? ` · ${s.site.error}` : ""}</span>
+      <span>{!s.settings.siteSync ? "Menyu: kassada" : s.site.syncedAt ? `Menyu (sayt): ${hhmm(s.site.syncedAt)}` : "Menyu hali yuklanmagan"}{s.settings.siteSync && s.site.error ? ` · ${s.site.error}` : ""}</span>
       <span className="grow" />
       <span>Printer: {s.settings.receiptPrinter || "tanlanmagan"}</span>
       <span>Versiya {s.appVersion}</span>

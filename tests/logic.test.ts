@@ -18,6 +18,7 @@ function seed(): Data {
     ],
   );
   d.site = { ...m, syncedAt: null, error: null };
+  d.settings.siteSync = true;
   return d;
 }
 
@@ -54,10 +55,10 @@ describe("buyurtma", () => {
     const o = L.openOrder(d, { type: "zal", hallId: "zal", table: 1 }, waiter);
     const c = o.checks[0].id;
     L.addLine(d, o.id, c, "p1", 2);
-    expect(L.sendKitchen(d, o.id).items).toEqual([{ name: "Sezar", qty: 2, note: "" }]);
+    expect(L.sendKitchen(d, o.id).items).toEqual([{ name: "Sezar", qty: 2, note: "", station: null }]);
     L.addLine(d, o.id, c, "p1");
     expect(o.checks[0].lines).toHaveLength(2);
-    expect(L.sendKitchen(d, o.id).items).toEqual([{ name: "Sezar", qty: 1, note: "" }]);
+    expect(L.sendKitchen(d, o.id).items).toEqual([{ name: "Sezar", qty: 1, note: "", station: null }]);
     expect(L.sendKitchen(d, o.id).items).toEqual([]);
   });
 
@@ -127,6 +128,43 @@ describe("to‘lov", () => {
     expect(L.orderTotals(o).total).toBe(60000);
     L.pay(d, o.id, c2.id, [{ method: "click", amount: 25000 }], admin);
     expect(o.status).toBe("paid");
+  });
+});
+
+describe("Zim-Zim menyusi va shashlikxona", () => {
+  it("bir marta o‘rnatiladi, sinov ma'lumotlarini tozalaydi, xodim va sozlamalar qoladi", () => {
+    const d = seed();
+    d.staff.push({ id: "k1", name: "Shoxrux", role: "kassir", pin: "1111", active: true });
+    d.settings.receiptPrinter = "XP-80";
+    const o = L.openOrder(d, { type: "olib" }, waiter);
+    L.addLine(d, o.id, o.checks[0].id, "p1");
+    L.addCash(d, { type: "kirim", amount: 1000, note: "", staffName: "x" });
+    expect(L.applyMenuSeed(d)).toBe(true);
+    expect(d.orders).toHaveLength(0);
+    expect(d.cash).toHaveLength(0);
+    expect(d.counter).toBe(0);
+    expect(d.staff).toHaveLength(2);
+    expect(d.settings.receiptPrinter).toBe("XP-80");
+    const m = L.menu(d);
+    expect(m.categories.map((c) => c.name)).toEqual(["Salat", "Birinchi taom", "Asosiy taomlar", "Shashlik", "Maxsus taomlar", "Asosiy salat", "Ichimliklar"]);
+    expect(m.products).toHaveLength(87);
+    expect(m.products.filter((p) => p.name.startsWith("Manti")).map((p) => [p.name, p.price])).toEqual([["Manti (1 porsiya, 5 dona)", 45000], ["Manti (dona)", 9000]]);
+    expect(L.applyMenuSeed(d)).toBe(false); // ikkinchi marta tegmaydi
+  });
+
+  it("Tasdiqlashda faqat shashliklar shashlikxonaga yo‘naltiriladi", () => {
+    const d = L.emptyData();
+    L.applyMenuSeed(d);
+    const m = L.menu(d);
+    const id = (n: string) => m.products.find((p) => p.name === n)!.id;
+    const o = L.openOrder(d, { type: "zal", hallId: "zal", table: 1 }, waiter);
+    L.addLine(d, o.id, o.checks[0].id, id("Moloti"), 4);
+    L.addLine(d, o.id, o.checks[0].id, id("Shi"));
+    L.addLine(d, o.id, o.checks[0].id, id("Cola 1 l"));
+    const items = L.sendKitchen(d, o.id).items;
+    expect(items.filter((i) => i.station === "shashlik")).toEqual([{ name: "Moloti", qty: 4, note: "", station: "shashlik" }]);
+    expect(items.filter((i) => i.station === null)).toHaveLength(2);
+    expect(kitchenHtml(d, o, items.filter((i) => i.station), "SHASHLIKXONA")).toContain("SHASHLIKXONA");
   });
 });
 

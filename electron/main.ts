@@ -67,8 +67,9 @@ function handle(name: string, fn: Handler) {
 let syncing = false;
 async function syncMenu() {
   if (syncing) return;
-  syncing = true;
   const d = store.get();
+  if (!d.settings.siteSync) return; // menyu faqat kassada
+  syncing = true;
   const base = d.settings.apiUrl.replace(/\/+$/, "");
   try {
     const get = async (p: string) => {
@@ -136,13 +137,24 @@ function registerIpc() {
   handle("order:kitchen", async (orderId: string) => {
     need();
     const { order, items } = mutate((d) => L.sendKitchen(d, orderId));
-    if (!items.length) return { printed: false, count: 0 };
     const d = store.get();
-    if (d.settings.printKitchen && d.settings.kitchenPrinter) {
-      await printHtml(kitchenHtml(d, order, items), d.settings.kitchenPrinter, d.settings.paperWidth);
-      return { printed: true, count: items.length };
+    const groups: { station: L.Station; printer: string; label: string }[] = [
+      { station: "shashlik", printer: d.settings.shashlikPrinter, label: "SHASHLIKXONA" },
+      { station: "kitchen", printer: d.settings.printKitchen ? d.settings.kitchenPrinter : "", label: "OSHXONA" },
+    ];
+    const printed: string[] = [];
+    const errors: string[] = [];
+    for (const g of groups) {
+      const list = items.filter((i) => i.station === g.station);
+      if (!list.length || !g.printer) continue;
+      try {
+        await printHtml(kitchenHtml(d, order, list, g.label), g.printer, d.settings.paperWidth);
+        printed.push(g.label.toLowerCase());
+      } catch (e) {
+        errors.push(`${g.label}: ${e instanceof Error ? e.message : e}`);
+      }
     }
-    return { printed: false, count: items.length };
+    return { count: items.length, printed, errors };
   });
 
   handle("order:pay", async (orderId: string, checkId: string, payments: Parameters<typeof L.pay>[3], debtor?: L.Debtor) => {
@@ -184,9 +196,9 @@ function registerIpc() {
     await printHtml(html, p, d.settings.paperWidth);
     return { printed: true };
   });
-  handle("print:test", async (which: "receipt" | "kitchen") => {
+  handle("print:test", async (which: "receipt" | "kitchen" | "shashlik") => {
     const d = store.get();
-    const p = which === "kitchen" ? d.settings.kitchenPrinter : d.settings.receiptPrinter;
+    const p = which === "kitchen" ? d.settings.kitchenPrinter : which === "shashlik" ? d.settings.shashlikPrinter : d.settings.receiptPrinter;
     if (!p) throw new L.KassaError("Avval printerni tanlang");
     await printHtml(testHtml(d), p, d.settings.paperWidth);
   });
@@ -198,6 +210,10 @@ function registerIpc() {
   });
   handle("printers:list", () => (win ? listPrinters(win) : []));
 
+  handle("data:clear", () => {
+    need(["admin"]);
+    mutate((d) => L.clearData(d));
+  });
   handle("stop:toggle", (productId: string) => { need(["admin", "kassir"]); mutate((d) => L.toggleStop(d, productId)); });
   handle("cash:add", (e: { type: "kirim" | "chiqim"; amount: number; note: string }) => {
     const by = need(["admin", "kassir"]);
@@ -248,14 +264,14 @@ function registerIpc() {
     });
   });
 
-  handle("local:saveCategory", (c: { id?: string; name: string }) => {
+  handle("local:saveCategory", (c: { id?: string; name: string; print?: "none" | "shashlik" | "kitchen" }) => {
     need(["admin"]);
     if (!c.name.trim()) throw new L.KassaError("Nomini kiriting");
     return mutate((d) => {
       const ex = c.id && d.local.categories.find((x) => x.id === c.id);
-      if (ex) { ex.name = c.name.trim(); return ex.id; }
+      if (ex) { ex.name = c.name.trim(); ex.print = c.print ?? ex.print ?? "none"; return ex.id; }
       const id = "loc-" + L.uid();
-      d.local.categories.push({ id, name: c.name.trim(), sortOrder: 1000 + d.local.categories.length, source: "local" });
+      d.local.categories.push({ id, name: c.name.trim(), sortOrder: 1000 + d.local.categories.length, source: "local", print: c.print ?? "none" });
       return id;
     });
   });

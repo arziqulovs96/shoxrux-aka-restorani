@@ -1,4 +1,5 @@
 // Kassa mantig‘i: sof funksiyalar (testlanadi). Main jarayon ma'lumotni shu orqali o‘zgartiradi.
+import { MENU_SEED_VERSION, seedMenu } from "./menuSeed";
 import type {
   CashEntry, Category, Check, Data, Line, Order, OrderType, Payment, Product, Settings, Staff,
 } from "./types";
@@ -21,6 +22,8 @@ export const DEFAULT_SETTINGS: Settings = {
   zoom: 100,
   startBackground: "photo:zal",
   receiptNote: "",
+  shashlikPrinter: "",
+  siteSync: false,
   halls: [
     { id: "zal", name: "ZAL", tables: 14 },
     { id: "zal2", name: "ZAL 2", tables: 11 },
@@ -237,20 +240,51 @@ export function moveLine(d: Data, orderId: string, fromId: string, toId: string,
   touch(o);
 }
 
-/** Oshxonaga yuborish — yangi qo‘shilganlarni qaytaradi (oshxona chekiga) */
+export type Station = "shashlik" | "kitchen";
+export interface KitchenItem { name: string; qty: number; note: string; station: Station | null }
+
+/** Tasdiqlash — yangi qo‘shilganlarni qaytaradi; har biri o‘z bo‘limi printeriga (shashlikxona/oshxona) */
 export function sendKitchen(d: Data, orderId: string) {
   const o = findOrder(d, orderId);
-  const items: { name: string; qty: number; note: string }[] = [];
+  const { products, categories } = menu(d);
+  const route = (productId: string): Station | null => {
+    const p = products.find((x) => x.id === productId);
+    const c = p && categories.find((x) => x.id === p.categoryId);
+    return c?.print && c.print !== "none" ? c.print : null;
+  };
+  const items: KitchenItem[] = [];
   for (const c of o.checks) {
     for (const l of c.lines) {
       if (l.qty > l.sent) {
-        items.push({ name: l.name, qty: l.qty - l.sent, note: l.note });
+        items.push({ name: l.name, qty: l.qty - l.sent, note: l.note, station: route(l.productId) });
         l.sent = l.qty;
       }
     }
   }
   touch(o);
   return { order: o, items };
+}
+
+/** Sinov ma'lumotlarini tozalash: buyurtmalar, kassa, qarzlar (menyu, xodimlar, sozlamalar qoladi) */
+export function clearData(d: Data) {
+  d.orders = [];
+  d.cash = [];
+  d.debts = [];
+  d.counter = 0;
+  d.stoplist = [];
+}
+
+/** Zim-Zim menyusini o‘rnatish (bir marta): eski sinov ma'lumotlari ham tozalanadi */
+export function applyMenuSeed(d: Data): boolean {
+  if ((d.menuSeed ?? 0) >= MENU_SEED_VERSION) return false;
+  clearData(d);
+  d.local = seedMenu();
+  d.site = { categories: [], products: [], syncedAt: null, error: null };
+  d.priceOverrides = {};
+  d.recent = [];
+  d.settings.siteSync = false;
+  d.menuSeed = MENU_SEED_VERSION;
+  return true;
 }
 
 export function setDiscount(d: Data, orderId: string, discount: number, by: Actor) {
